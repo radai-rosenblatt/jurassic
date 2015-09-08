@@ -30,6 +30,11 @@ public class DecimalParserRuleTest extends AbstractLexerRuleTest {
     }
 
     @Test
+    public void testZero() throws Exception {
+        assertCorrect("0");
+    }
+
+    @Test
     public void testOctal() throws Exception {
         assertIncorrect("07");
     }

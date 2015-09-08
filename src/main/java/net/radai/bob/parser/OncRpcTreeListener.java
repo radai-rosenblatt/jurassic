@@ -44,6 +44,22 @@ public class OncRpcTreeListener extends ONCRPCv2BaseListener {
         results.register(new XdrConstant(constName, value));
     }
 
+    @Override
+    public void enterTypeDef(ONCRPCv2Parser.TypeDefContext ctx) {
+        TerminalNode keywordNode = AntlrUtil.resolveToTerminal(ctx.getChild(0));
+        String firstWord = keywordNode.getSymbol().getText();
+        switch (firstWord) {
+            case "typedef":
+                break;
+            case "enum":
+            case "struct":
+            case "union":
+            default:
+                throw new UnsupportedOperationException("unhandled: " + firstWord);
+        }
+        int g = 8;
+    }
+
     private BigInteger parseInteger(Token token) {
         String text = token.getText();
         switch (token.getType()) {
@@ -57,5 +73,9 @@ public class OncRpcTreeListener extends ONCRPCv2BaseListener {
                 throw new IllegalArgumentException("unable to parse integer from token: " + token
                         + " of type " + ONCRPCv2Lexer.VOCABULARY.getDisplayName(token.getType()));
         }
+    }
+
+    private void parseDeclaration(ONCRPCv2Parser.DeclarationContext ctx) {
+
     }
 }

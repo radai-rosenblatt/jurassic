@@ -20,6 +20,6 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public enum XdrType {
+public enum XdrBasicType {
     UNSIGNED_INT, INT, UNSIGNED_HYPER, HYPER, FLOAT, DOUBLE, QUADRUPLE, BOOL, OPAQUE, STRING, ENUM, STRUCT, UNION
 }

@@ -64,7 +64,7 @@ oncrpcv2Specification : (xdrSpecification | programDef)*; //this is the top leve
 
 COMMENT : '/*' .*? '*/' -> skip;
 OCTAL : '0' [1-7] ([0-7])*;
-DECIMAL : ('-')? [1-9] ([0-9])*;
+DECIMAL : ('-')? ([0-9])+;
 HEXADECIMAL : '0x' ([a-fA-F0-9])+;
 IDENTIFIER : [a-zA-Z] ([a-zA-Z0-9_])*;
 WS : [ \t\r\n]+ -> skip;

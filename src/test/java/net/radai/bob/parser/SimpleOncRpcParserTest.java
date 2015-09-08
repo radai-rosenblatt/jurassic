@@ -36,4 +36,10 @@ public class SimpleOncRpcParserTest extends AbstractOncRpcParserTest {
         Assert.assertEquals("HUGE_CONST", parsed.getName());
         Assert.assertEquals(new BigInteger("18446744073709551615"), parsed.getValue());
     }
+
+    @Test
+    public void testUglyEnumDef() throws Exception {
+        ResultsContainer results = parse("typedef enum { FALSE = 0, TRUE = 1 } bob;");
+        int g = 7;
+    }
 }

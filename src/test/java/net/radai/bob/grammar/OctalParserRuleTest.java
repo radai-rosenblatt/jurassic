@@ -30,6 +30,11 @@ public class OctalParserRuleTest extends AbstractLexerRuleTest {
     }
 
     @Test
+    public void testZero() throws Exception {
+        assertIncorrect("0");
+    }
+
+    @Test
     public void testOctal() throws Exception {
         assertCorrect("07");
     }
