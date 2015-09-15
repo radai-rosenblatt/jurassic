@@ -23,8 +23,13 @@ import java.util.List;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrStructType extends XdrType {
+public class XdrStructType extends XdrType implements XdrScope {
+    private final XdrScope parentScope;
     private List<XdrDeclaration> fields = new ArrayList<>();
+
+    public XdrStructType(XdrScope parentScope) {
+        this.parentScope = parentScope;
+    }
 
     @Override
     public XdrTypes getType() {
@@ -33,5 +38,20 @@ public class XdrStructType extends XdrType {
 
     public void addField(XdrDeclaration field) {
         fields.add(field);
+    }
+
+    @Override
+    public XdrIdentifiable resolve(String identifier) {
+        for (XdrDeclaration field : fields) {
+            if (field.getIdentifier().equals(identifier)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public XdrScope getParent() {
+        return parentScope;
     }
 }

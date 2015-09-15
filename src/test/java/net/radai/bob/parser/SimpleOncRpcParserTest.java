@@ -33,14 +33,13 @@ public class SimpleOncRpcParserTest extends AbstractOncRpcParserTest {
         ResultsContainer results = parse("const HUGE_CONST = 18446744073709551615;");
         XdrConstant parsed = results.getConstant("HUGE_CONST");
         Assert.assertNotNull(parsed);
-        Assert.assertEquals("HUGE_CONST", parsed.getName());
+        Assert.assertEquals("HUGE_CONST", parsed.getIdentifier());
         Assert.assertEquals(new BigInteger("18446744073709551615"), parsed.getValue());
     }
 
-    @Test
-    public void testSimpleTypedef() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNoIdentifier() throws Exception {
         ResultsContainer results = parse("typedef void;");
-        int g = 7;
     }
 
     @Test

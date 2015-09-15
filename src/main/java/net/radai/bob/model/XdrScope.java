@@ -20,20 +20,7 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrRefType extends XdrType {
-
-    private final String refName;
-
-    public XdrRefType(String refName) {
-        this.refName = refName;
-    }
-
-    @Override
-    public XdrTypes getType() {
-        return XdrTypes.REF;
-    }
-
-    public String getRefName() {
-        return refName;
-    }
+public interface XdrScope {
+    XdrIdentifiable resolve(String identifier);
+    XdrScope getParent(); //null if top level
 }

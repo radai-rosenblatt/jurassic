@@ -24,6 +24,14 @@ import org.antlr.v4.runtime.tree.Tree;
  * @author Radai Rosenblatt
  */
 public class AntlrUtil {
+
+    public static TerminalNode findFirstTerminal(Tree t) {
+        if (t instanceof TerminalNode) {
+            return (TerminalNode) t;
+        }
+        return findFirstTerminal(t.getChild(0));
+    }
+
     public static TerminalNode resolveToTerminal(Tree t) {
         if (t instanceof TerminalNode) {
             return (TerminalNode) t;

@@ -20,7 +20,7 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrDeclaration {
+public class XdrDeclaration implements XdrIdentifiable {
     private boolean optional;
     private boolean array;
     private boolean fixedSize;
@@ -60,6 +60,7 @@ public class XdrDeclaration {
         this.sizeLimit = sizeLimit;
     }
 
+    @Override
     public String getIdentifier() {
         return identifier;
     }

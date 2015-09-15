@@ -23,18 +23,18 @@ import java.util.Objects;
  * @author Radai Rosenblatt
  */
 public class XdrRefValue extends XdrValue {
-    private String identifier;
+    private String refName;
 
-    public XdrRefValue(String identifier) {
-        this.identifier = identifier;
+    public XdrRefValue(String refName) {
+        this.refName = refName;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getRefName() {
+        return refName;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setRefName(String refName) {
+        this.refName = refName;
     }
 
     @Override
@@ -46,11 +46,11 @@ public class XdrRefValue extends XdrValue {
             return false;
         }
         XdrRefValue that = (XdrRefValue) o;
-        return Objects.equals(identifier, that.identifier);
+        return Objects.equals(refName, that.refName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(identifier);
+        return Objects.hash(refName);
     }
 }

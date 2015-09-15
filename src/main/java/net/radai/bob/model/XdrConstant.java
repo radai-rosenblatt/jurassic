@@ -22,23 +22,24 @@ import java.math.BigInteger;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrConstant {
-    private final String name;
+public class XdrConstant implements XdrIdentifiable {
+    private final String identifier;
     private final BigInteger value; //might be unsigned hyper (long), which java cant handle
 
-    public XdrConstant(String name, BigInteger value) {
-        if (name == null || name.isEmpty()) {
+    public XdrConstant(String identifier, BigInteger value) {
+        if (identifier == null || identifier.isEmpty()) {
             throw new IllegalArgumentException("xdr constant name cannot be empty");
         }
         if (value == null) {
             throw new IllegalArgumentException("xdr constant must have a value");
         }
-        this.name = name;
+        this.identifier = identifier;
         this.value = value;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public String getIdentifier() {
+        return identifier;
     }
 
     public BigInteger getValue() {
@@ -47,6 +48,6 @@ public class XdrConstant {
 
     @Override
     public String toString() {
-        return name + "=" + value;
+        return identifier + "=" + value;
     }
 }

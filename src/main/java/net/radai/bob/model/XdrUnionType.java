@@ -24,9 +24,10 @@ import java.util.Set;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrUnionType extends XdrType {
+public class XdrUnionType extends XdrType implements XdrScope {
 
-    private final XdrDeclaration discriminant;
+    private final XdrScope parentScope;
+    private XdrDeclaration discriminant;
     private Map<Set<XdrValue>, XdrDeclaration> arms = new HashMap<>(); //the null key is the default arm
 
     @Override
@@ -34,7 +35,11 @@ public class XdrUnionType extends XdrType {
         return XdrTypes.UNION;
     }
 
-    public XdrUnionType(XdrDeclaration discriminant) {
+    public XdrUnionType(XdrScope parentScope) {
+        this.parentScope = parentScope;
+    }
+
+    public void setDiscriminant(XdrDeclaration discriminant) {
         this.discriminant = discriminant;
     }
 
@@ -64,5 +69,20 @@ public class XdrUnionType extends XdrType {
             }
         }
         arms.put(caseValues, declaration);
+    }
+
+    @Override
+    public XdrIdentifiable resolve(String identifier) {
+        for (XdrDeclaration arm : arms.values()) {
+            if (arm.getIdentifier().equals(identifier)) {
+                return arm;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public XdrScope getParent() {
+        return parentScope;
     }
 }
