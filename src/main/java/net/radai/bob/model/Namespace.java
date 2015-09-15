@@ -15,12 +15,13 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.parser;
+package net.radai.bob.model;
 
-import net.radai.bob.model.XdrConstant;
-import net.radai.bob.model.XdrDeclaration;
-import net.radai.bob.model.XdrIdentifiable;
-import net.radai.bob.model.XdrScope;
+import net.radai.bob.model.rpc.RpcProgram;
+import net.radai.bob.model.xdr.XdrConstant;
+import net.radai.bob.model.xdr.XdrDeclaration;
+import net.radai.bob.model.Identifiable;
+import net.radai.bob.model.Scope;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +30,10 @@ import java.util.Map;
  * not thread safe
  * @author Radai Rosenblatt
  */
-public class ResultsContainer implements XdrScope {
+public class Namespace implements Scope {
     private final Map<String, XdrConstant> constants = new HashMap<>();
     private final Map<String, XdrDeclaration> types = new HashMap<>();
+    private final Map<String, RpcProgram> programs = new HashMap<>();
 
     public void register(XdrConstant constant) {
         verifyUnused(constant.getIdentifier());
@@ -43,17 +45,26 @@ public class ResultsContainer implements XdrScope {
         types.put(type.getIdentifier(), type);
     }
 
+    public void register(RpcProgram program) {
+        verifyUnused(program.getName());
+        programs.put(program.getName(), program);
+    }
+
     @Override
-    public XdrIdentifiable resolve(String identifier) {
+    public Identifiable resolve(String identifier) {
         XdrConstant constant = getConstant(identifier);
         if (constant != null) {
             return constant;
         }
-        return getType(identifier);
+        XdrDeclaration type = getType(identifier);
+        if (type != null) {
+            return type;
+        }
+        return getProgram(identifier);
     }
 
     @Override
-    public XdrScope getParent() {
+    public Scope getParent() {
         return null; //top level
     }
 
@@ -63,6 +74,10 @@ public class ResultsContainer implements XdrScope {
 
     public XdrDeclaration getType(String name) {
         return types.get(name);
+    }
+
+    public RpcProgram getProgram(String name) {
+        return programs.get(name);
     }
 
     private void verifyUnused(String name) throws IllegalArgumentException {

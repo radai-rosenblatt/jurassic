@@ -17,6 +17,8 @@
 
 package net.radai.bob.parser;
 
+import net.radai.bob.model.Namespace;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,12 +33,12 @@ import java.nio.file.Path;
  */
 public abstract class AbstractOncRpcParserTest {
 
-    protected ResultsContainer parse(Reader reader) throws IOException {
+    protected Namespace parse(Reader reader) throws IOException {
         OncRpcParser parser = new OncRpcParser();
         return parser.parse(reader);
     }
 
-    protected ResultsContainer parse(String oncrpc) {
+    protected Namespace parse(String oncrpc) {
         try {
             return parse(new StringReader(oncrpc));
         } catch (IOException e) {
@@ -44,13 +46,13 @@ public abstract class AbstractOncRpcParserTest {
         }
     }
 
-    protected ResultsContainer parseFile(Path file) throws IOException {
+    protected Namespace parseFile(Path file) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file)) {
             return parse(reader);
         }
     }
 
-    protected ResultsContainer parseFile(String fileName) throws IOException {
+    protected Namespace parseFile(String fileName) throws IOException {
         try (InputStream stream = AbstractOncRpcParserTest.class.getClassLoader().getResourceAsStream(fileName)) {
             if (stream == null) {
                 throw new IllegalArgumentException("unable to locate file " + fileName);

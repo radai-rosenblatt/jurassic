@@ -15,43 +15,33 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.model;
+package net.radai.bob.model.xdr;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Radai Rosenblatt
  */
-public class XdrStructType extends XdrType implements XdrScope {
-    private final XdrScope parentScope;
-    private List<XdrDeclaration> fields = new ArrayList<>();
-
-    public XdrStructType(XdrScope parentScope) {
-        this.parentScope = parentScope;
-    }
+public class XdrEnumType extends XdrType {
+    private Map<String, XdrValue> values = new HashMap<>();
 
     @Override
     public XdrTypes getType() {
-        return XdrTypes.STRUCT;
+        return XdrTypes.ENUM;
     }
 
-    public void addField(XdrDeclaration field) {
-        fields.add(field);
+    public Map<String, XdrValue> getValues() {
+        return values;
     }
 
-    @Override
-    public XdrIdentifiable resolve(String identifier) {
-        for (XdrDeclaration field : fields) {
-            if (field.getIdentifier().equals(identifier)) {
-                return field;
-            }
+    public void add(String identifier, XdrValue value) {
+        if (values.putIfAbsent(identifier, value) != null) {
+            throw new IllegalArgumentException("enum already contained identifier " + identifier);
         }
-        return null;
     }
 
-    @Override
-    public XdrScope getParent() {
-        return parentScope;
+    public XdrValue get(String identifier) {
+        return values.get(identifier);
     }
 }

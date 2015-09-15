@@ -15,7 +15,10 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.model;
+package net.radai.bob.model.xdr;
+
+import net.radai.bob.model.Identifiable;
+import net.radai.bob.model.Scope;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,9 +27,9 @@ import java.util.Set;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrUnionType extends XdrType implements XdrScope {
+public class XdrUnionType extends XdrType implements Scope {
 
-    private final XdrScope parentScope;
+    private final Scope parentScope;
     private XdrDeclaration discriminant;
     private Map<Set<XdrValue>, XdrDeclaration> arms = new HashMap<>(); //the null key is the default arm
 
@@ -35,7 +38,7 @@ public class XdrUnionType extends XdrType implements XdrScope {
         return XdrTypes.UNION;
     }
 
-    public XdrUnionType(XdrScope parentScope) {
+    public XdrUnionType(Scope parentScope) {
         this.parentScope = parentScope;
     }
 
@@ -47,7 +50,7 @@ public class XdrUnionType extends XdrType implements XdrScope {
         return discriminant;
     }
 
-    public void addArm(Set<XdrValue> caseValues, XdrDeclaration declaration) {
+    public void add(Set<XdrValue> caseValues, XdrDeclaration declaration) {
         if (caseValues == null) {
             //a default arm
             if (arms.containsKey(null)) {
@@ -72,7 +75,7 @@ public class XdrUnionType extends XdrType implements XdrScope {
     }
 
     @Override
-    public XdrIdentifiable resolve(String identifier) {
+    public Identifiable resolve(String identifier) {
         for (XdrDeclaration arm : arms.values()) {
             if (arm.getIdentifier().equals(identifier)) {
                 return arm;
@@ -82,7 +85,7 @@ public class XdrUnionType extends XdrType implements XdrScope {
     }
 
     @Override
-    public XdrScope getParent() {
+    public Scope getParent() {
         return parentScope;
     }
 }

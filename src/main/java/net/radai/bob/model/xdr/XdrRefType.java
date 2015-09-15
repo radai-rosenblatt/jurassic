@@ -15,12 +15,25 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.model;
+package net.radai.bob.model.xdr;
 
 /**
  * @author Radai Rosenblatt
  */
-public abstract class XdrType {
+public class XdrRefType extends XdrType {
 
-    public abstract XdrTypes getType();
+    private final String refName;
+
+    public XdrRefType(String refName) {
+        this.refName = refName;
+    }
+
+    @Override
+    public XdrTypes getType() {
+        return XdrTypes.REF;
+    }
+
+    public String getRefName() {
+        return refName;
+    }
 }

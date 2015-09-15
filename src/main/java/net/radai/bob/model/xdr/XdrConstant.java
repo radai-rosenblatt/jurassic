@@ -15,14 +15,16 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.model;
+package net.radai.bob.model.xdr;
+
+import net.radai.bob.model.Identifiable;
 
 import java.math.BigInteger;
 
 /**
  * @author Radai Rosenblatt
  */
-public class XdrConstant implements XdrIdentifiable {
+public class XdrConstant implements Identifiable {
     private final String identifier;
     private final BigInteger value; //might be unsigned hyper (long), which java cant handle
 

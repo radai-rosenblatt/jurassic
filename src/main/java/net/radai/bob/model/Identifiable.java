@@ -20,7 +20,6 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public interface XdrScope {
-    XdrIdentifiable resolve(String identifier);
-    XdrScope getParent(); //null if top level
+public interface Identifiable {
+    String getIdentifier();
 }

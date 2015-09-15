@@ -15,12 +15,14 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.model;
+package net.radai.bob.model.xdr;
+
+import net.radai.bob.model.Identifiable;
 
 /**
  * @author Radai Rosenblatt
  */
-public class XdrDeclaration implements XdrIdentifiable {
+public class XdrDeclaration implements Identifiable {
     private boolean optional;
     private boolean array;
     private boolean fixedSize;

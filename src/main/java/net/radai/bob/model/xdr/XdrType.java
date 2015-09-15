@@ -15,10 +15,11 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.model;
+package net.radai.bob.model.xdr;
 
 /**
  * @author Radai Rosenblatt
  */
-public abstract class XdrValue {
+public abstract class XdrType {
+    public abstract XdrTypes getType();
 }
