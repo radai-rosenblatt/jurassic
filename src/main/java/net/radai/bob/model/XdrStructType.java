@@ -17,8 +17,21 @@
 
 package net.radai.bob.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Radai Rosenblatt
  */
-public class XdrObject {
+public class XdrStructType extends XdrType {
+    private List<XdrDeclaration> fields = new ArrayList<>();
+
+    @Override
+    public XdrTypes getType() {
+        return XdrTypes.STRUCT;
+    }
+
+    public void addField(XdrDeclaration field) {
+        fields.add(field);
+    }
 }

@@ -17,36 +17,40 @@
 
 package net.radai.bob.model;
 
-import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * @author Radai Rosenblatt
  */
-public class XdrConstant {
-    private final String name;
-    private final BigInteger value; //might be unsigned hyper (long), which java cant handle
+public class XdrRefValue extends XdrValue {
+    private String identifier;
 
-    public XdrConstant(String name, BigInteger value) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("xdr constant name cannot be empty");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("xdr constant must have a value");
-        }
-        this.name = name;
-        this.value = value;
+    public XdrRefValue(String identifier) {
+        this.identifier = identifier;
     }
 
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public BigInteger getValue() {
-        return value;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
-    public String toString() {
-        return name + "=" + value;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        XdrRefValue that = (XdrRefValue) o;
+        return Objects.equals(identifier, that.identifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifier);
     }
 }

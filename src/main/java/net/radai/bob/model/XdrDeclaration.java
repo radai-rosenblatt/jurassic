@@ -12,7 +12,7 @@
  * GNU Lesser Public License for more details.
  *
  * You should have received a copy of the GNU Lesser Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.radai.bob.model;
@@ -20,14 +20,13 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrTypeDefDeclaration {
+public class XdrDeclaration {
     private boolean optional;
     private boolean array;
     private boolean fixedSize;
-    private int sizeLimit; //-1 for none
+    private XdrValue sizeLimit;
     private String identifier;
-    private XdrBasicType resolvesToType;
-    private XdrTypeDefDeclaration resolvesTo; //underlying def this resolves to.
+    private XdrType type;
 
     public boolean isOptional() {
         return optional;
@@ -53,11 +52,11 @@ public class XdrTypeDefDeclaration {
         this.fixedSize = fixedSize;
     }
 
-    public int getSizeLimit() {
+    public XdrValue getSizeLimit() {
         return sizeLimit;
     }
 
-    public void setSizeLimit(int sizeLimit) {
+    public void setSizeLimit(XdrValue sizeLimit) {
         this.sizeLimit = sizeLimit;
     }
 
@@ -69,19 +68,11 @@ public class XdrTypeDefDeclaration {
         this.identifier = identifier;
     }
 
-    public XdrBasicType getResolvesToType() {
-        return resolvesToType;
+    public XdrType getType() {
+        return type;
     }
 
-    public void setResolvesToType(XdrBasicType resolvesToType) {
-        this.resolvesToType = resolvesToType;
-    }
-
-    public XdrTypeDefDeclaration getResolvesTo() {
-        return resolvesTo;
-    }
-
-    public void setResolvesTo(XdrTypeDefDeclaration resolvesTo) {
-        this.resolvesTo = resolvesTo;
+    public void setType(XdrType type) {
+        this.type = type;
     }
 }

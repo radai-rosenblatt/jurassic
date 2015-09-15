@@ -12,7 +12,7 @@
  * GNU Lesser Public License for more details.
  *
  * You should have received a copy of the GNU Lesser Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.radai.bob.parser;
@@ -42,5 +42,17 @@ public class ResultsContainer {
         if (constants.containsKey(name)) {
             throw new IllegalArgumentException("name " + name + " already in use by " + constants.get(name));
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (!constants.isEmpty()) {
+            sb.append(constants.size()).append(" consts");
+        }
+        if (sb.length() == 0) {
+            return "empty";
+        }
+        return sb.toString();
     }
 }

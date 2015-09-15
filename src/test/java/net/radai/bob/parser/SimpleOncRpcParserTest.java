@@ -12,7 +12,7 @@
  * GNU Lesser Public License for more details.
  *
  * You should have received a copy of the GNU Lesser Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.radai.bob.parser;
@@ -35,6 +35,12 @@ public class SimpleOncRpcParserTest extends AbstractOncRpcParserTest {
         Assert.assertNotNull(parsed);
         Assert.assertEquals("HUGE_CONST", parsed.getName());
         Assert.assertEquals(new BigInteger("18446744073709551615"), parsed.getValue());
+    }
+
+    @Test
+    public void testSimpleTypedef() throws Exception {
+        ResultsContainer results = parse("typedef void;");
+        int g = 7;
     }
 
     @Test

@@ -20,5 +20,20 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrObject {
+public class XdrRefType extends XdrType {
+
+    private final String identifier;
+
+    public XdrRefType(String identifier) {
+        this.identifier = identifier;
+    }
+
+    @Override
+    public XdrTypes getType() {
+        return XdrTypes.REF;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
 }

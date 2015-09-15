@@ -20,5 +20,5 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrObject {
+public abstract class XdrValue {
 }

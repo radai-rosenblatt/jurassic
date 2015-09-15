@@ -20,5 +20,6 @@ package net.radai.bob.model;
 /**
  * @author Radai Rosenblatt
  */
-public class XdrObject {
+public enum XdrTypes {
+    UNSIGNED_INT, INT, UNSIGNED_HYPER, HYPER, FLOAT, DOUBLE, QUADRUPLE, BOOL, OPAQUE, STRING, ENUM, STRUCT, UNION, VOID, REF
 }

@@ -12,7 +12,7 @@
   ~ GNU Lesser Public License for more details.
   ~
   ~ You should have received a copy of the GNU Lesser Public License
-  ~ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+  ~ along with Bob. If not, see <http://www.gnu.org/licenses/>.
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -45,7 +45,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>3.3</version>
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>

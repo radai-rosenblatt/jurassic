@@ -12,7 +12,7 @@
  * GNU Lesser Public License for more details.
  *
  * You should have received a copy of the GNU Lesser Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.radai.bob.parser;
@@ -32,5 +32,18 @@ public class AntlrUtil {
             throw new IllegalArgumentException("non-terminal node has != 1 children: " + t);
         }
         return resolveToTerminal(t.getChild(0));
+    }
+
+    public static boolean hasChild(Tree t, String terminal) {
+        for (int i=0; i<t.getChildCount(); i++) {
+            Tree child = t.getChild(i);
+            if (!(child instanceof TerminalNode)) {
+                continue;
+            }
+            if (terminal.equals(((TerminalNode) child).getText())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

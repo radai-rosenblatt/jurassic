@@ -17,8 +17,31 @@
 
 package net.radai.bob.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Radai Rosenblatt
  */
-public class XdrObject {
+public class XdrEnumType extends XdrType {
+    private Map<String, XdrValue> values = new HashMap<>();
+
+    @Override
+    public XdrTypes getType() {
+        return XdrTypes.ENUM;
+    }
+
+    public Map<String, XdrValue> getValues() {
+        return values;
+    }
+
+    public void add(String identifier, XdrValue value) {
+        if (values.putIfAbsent(identifier, value) != null) {
+            throw new IllegalArgumentException("enum already contained identifier " + identifier);
+        }
+    }
+
+    public XdrValue get(String identifier) {
+        return values.get(identifier);
+    }
 }
