@@ -66,6 +66,22 @@
                     <artifactId>coveralls-maven-plugin</artifactId>
                     <version>4.0.0</version>
                 </plugin>
+                <plugin> <!-- this will not run until you execute mvn org.pitest:pitest-maven:mutationCoverage -->
+                    <groupId>org.pitest</groupId>
+                    <artifactId>pitest-maven</artifactId>
+                    <version>LATEST</version>
+                    <configuration>
+                        <targetClasses>
+                            <param>net.radai.bob*</param>
+                        </targetClasses>
+                        <targetTests>
+                            <param>net.radai.bob*</param>
+                        </targetTests>
+                        <mutators>
+                            <mutator>ALL</mutator>
+                        </mutators>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 

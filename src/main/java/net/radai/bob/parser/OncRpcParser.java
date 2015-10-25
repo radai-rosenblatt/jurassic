@@ -85,7 +85,7 @@ public class OncRpcParser {
         return new XdrConstant(identifier, value);
     }
 
-    private BigInteger parseInteger(Token token) {
+    private static BigInteger parseInteger(Token token) {
         String text = token.getText();
         switch (token.getType()) {
             case ONCRPCv2Parser.DECIMAL:

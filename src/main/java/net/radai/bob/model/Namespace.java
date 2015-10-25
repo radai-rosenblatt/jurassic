@@ -20,8 +20,6 @@ package net.radai.bob.model;
 import net.radai.bob.model.rpc.RpcProgram;
 import net.radai.bob.model.xdr.XdrConstant;
 import net.radai.bob.model.xdr.XdrDeclaration;
-import net.radai.bob.model.Identifiable;
-import net.radai.bob.model.Scope;
 
 import java.util.HashMap;
 import java.util.Map;
