@@ -1,4 +1,4 @@
-package net.radai.bob.wire;
+package net.radai.bob.runtime.wire;
 
 /**
  * @author Radai Rosenblatt
