@@ -94,6 +94,13 @@
                         <goals>
                             <goal>antlr4</goal>
                         </goals>
+                        <configuration>
+                            <arguments>
+                                <argument>-package</argument>
+                                <argument>net.radai.bob.grammar</argument>
+                            </arguments>
+                            <outputDirectory>${project.build.directory}/generated-sources/antlr4/net/radai/bob/grammar</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
