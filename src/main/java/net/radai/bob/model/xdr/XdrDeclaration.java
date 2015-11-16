@@ -78,4 +78,25 @@ public class XdrDeclaration implements Identifiable {
     public void setType(XdrType type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (identifier != null) {
+            sb.append(identifier).append(": ");
+        }
+        sb.append(type.toString());
+        if (array) {
+            if (fixedSize) {
+                sb.append("[").append(sizeLimit).append("]");
+            } else {
+                sb.append("<");
+                if (sizeLimit != null) {
+                    sb.append(sizeLimit);
+                }
+                sb.append(">");
+            }
+        }
+        return sb.toString();
+    }
 }

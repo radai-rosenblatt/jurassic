@@ -71,4 +71,18 @@ public class RpcProcedure implements Identifiable {
     public String getIdentifier() {
         return getName();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(returnType).append(" ").append(name).append("(");
+        if (arguments != null && !arguments.isEmpty()) {
+            for (XdrType arg : arguments) {
+                sb.append(arg).append(", ");
+            }
+            sb.delete(sb.length()-2, sb.length()); //last ", "
+        }
+        sb.append(") = ").append(procedureNumber);
+        return sb.toString();
+    }
 }

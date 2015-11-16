@@ -1,6 +1,5 @@
 package net.radai.bob.runtime.wire.impl.streams;
 
-import net.radai.bob.runtime.model.XdrEnum;
 import net.radai.bob.runtime.model.XdrSerializable;
 import net.radai.bob.runtime.wire.XdrOutput;
 

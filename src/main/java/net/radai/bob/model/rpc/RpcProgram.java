@@ -88,4 +88,9 @@ public class RpcProgram implements Identifiable, Scope {
     public Scope getParent() {
         return parentScope;
     }
+
+    @Override
+    public String toString() {
+        return name + " = " + programNumber;
+    }
 }

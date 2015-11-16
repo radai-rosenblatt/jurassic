@@ -36,4 +36,9 @@ public class XdrRefType extends XdrType {
     public String getRefName() {
         return refName;
     }
+
+    @Override
+    public String toString() {
+        return getType() + " (" + refName + ")";
+    }
 }

@@ -53,4 +53,9 @@ public class XdrRefValue extends XdrValue {
     public int hashCode() {
         return Objects.hash(refName);
     }
+
+    @Override
+    public String toString() {
+        return refName;
+    }
 }

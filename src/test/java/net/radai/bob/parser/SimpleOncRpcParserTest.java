@@ -38,6 +38,12 @@ public class SimpleOncRpcParserTest extends AbstractOncRpcParserTest {
         Assert.assertEquals(new BigInteger("18446744073709551615"), parsed.getValue());
     }
 
+    @Test
+    public void testConst() {
+        Namespace results = parse("const FALSE = 0; const TRUE = 1;");
+        int g = 7;
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testNoIdentifier() throws Exception {
         Namespace results = parse("typedef void;");

@@ -22,4 +22,9 @@ package net.radai.bob.model.xdr;
  */
 public abstract class XdrType {
     public abstract XdrTypes getType();
+
+    @Override
+    public String toString() {
+        return getType().name();
+    }
 }

@@ -291,6 +291,13 @@ public class OncRpcParser {
         result.setName(ctx.IDENTIFIER().getText());
         result.setProcedureNumber(parseInteger(AntlrUtil.resolveToTerminal(ctx.constant()).getSymbol()));
 
+        oncrpcv2Parser.ProcReturnContext returnTypeContext = ctx.procReturn();
+        if (returnTypeContext.typeSpecifier() != null) {
+            result.setReturnType(parseType(returnTypeContext.typeSpecifier(), parentScope));
+        } else {
+            result.setReturnType(XdrBasicType.VOID);
+        }
+
         oncrpcv2Parser.ProcFirstArgContext firstArg = ctx.procFirstArg();
         if (firstArg.typeSpecifier() != null) {
             //method has at least one arg

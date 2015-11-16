@@ -37,7 +37,8 @@ public class ValidatingErrorListener implements ANTLRErrorListener {
 
     @Override
     public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, boolean exact, BitSet ambigAlts, ATNConfigSet configs) {
-        throw new IllegalStateException("ambiguous"); //TODO - more info
+        //this isnt fatal and is triggered by apparently benign stuff. dunno why
+        //throw new IllegalStateException("ambiguous"); //TODO - more info
     }
 
     @Override
