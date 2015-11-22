@@ -39,34 +39,104 @@ public abstract class AbstractXdrCodecTest {
 
     @Test
     public void testRoundTripBoolean() throws Exception {
-        for (boolean boolValue : new boolean[] {false, true}) {
+        for (boolean value : new boolean[] {false, true}) {
             XdrOutput output = buildOutput();
-            output.write(boolValue);
+            output.write(value);
             XdrInput input = flip(output);
             boolean read = input.readBoolean();
-            Assert.assertEquals(boolValue, read);
+            Assert.assertEquals(value, read);
         }
     }
 
     @Test
     public void testCompatibilityBoolean() throws Exception {
-        for (boolean boolValue : new boolean[] {false, true}) {
+        for (boolean value : new boolean[] {false, true}) {
             //oncrpc4j --> bob
             Xdr oncrpc4j = buildOncrpc4j();
-            oncrpc4j.xdrEncodeBoolean(boolValue);
+            oncrpc4j.xdrEncodeBoolean(value);
             byte[] payload = getPayload(oncrpc4j);
             XdrInput input = buildInput(payload);
             boolean read = input.readBoolean();
-            Assert.assertEquals(boolValue, read);
+            Assert.assertEquals(value, read);
 
             //bob --> oncrpc4j
             XdrOutput output = buildOutput();
-            output.write(boolValue);
+            output.write(value);
             byte[] payload2 = getPayload(output);
             Assert.assertArrayEquals(payload, payload2); //binary compatibility
             oncrpc4j = buildOncrpc4j(payload2);
             read = oncrpc4j.xdrDecodeBoolean();
-            Assert.assertEquals(boolValue, read);
+            Assert.assertEquals(value, read);
+        }
+    }
+
+    @Test
+    public void testRoundTripInteger() throws Exception {
+        for (int value : new int[] {Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE}) {
+            XdrOutput output = buildOutput();
+            output.write(value);
+            XdrInput input = flip(output);
+            int read = input.readInt();
+            Assert.assertEquals(value, read);
+        }
+    }
+
+    @Test
+    public void testCompatibilityInteger() throws Exception {
+        for (int value : new int[] {Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE}) {
+            //oncrpc4j --> bob
+            Xdr oncrpc4j = buildOncrpc4j();
+            oncrpc4j.xdrEncodeInt(value);
+            byte[] payload = getPayload(oncrpc4j);
+            XdrInput input = buildInput(payload);
+            int read = input.readInt();
+            Assert.assertEquals(value, read);
+
+            //bob --> oncrpc4j
+            XdrOutput output = buildOutput();
+            output.write(value);
+            byte[] payload2 = getPayload(output);
+            Assert.assertArrayEquals(payload, payload2); //binary compatibility
+            oncrpc4j = buildOncrpc4j(payload2);
+            read = oncrpc4j.xdrDecodeInt();
+            Assert.assertEquals(value, read);
+        }
+    }
+
+    @Test
+    public void testRoundTripLong() throws Exception {
+        for (long value : new long[] {
+                Long.MIN_VALUE, Integer.MIN_VALUE - 1L, Integer.MIN_VALUE, -1, 0,
+                1, Integer.MAX_VALUE, Integer.MAX_VALUE+1L, Long.MAX_VALUE}) {
+            XdrOutput output = buildOutput();
+            output.write(value);
+            XdrInput input = flip(output);
+            long read = input.readLong();
+            Assert.assertEquals(value, read);
+        }
+    }
+
+    @Test
+    public void testCompatibilityLong() throws Exception {
+        for (long value : new long[] {
+                Long.MIN_VALUE, Integer.MIN_VALUE - 1L, Integer.MIN_VALUE, -1, 0,
+                1, Integer.MAX_VALUE, Integer.MAX_VALUE+1L, Long.MAX_VALUE}) {
+            //oncrpc4j --> bob
+            Xdr oncrpc4j = buildOncrpc4j();
+            oncrpc4j.xdrEncodeLong(value);
+            byte[] payload = getPayload(oncrpc4j);
+            XdrInput input = buildInput(payload);
+            long read = input.readLong();
+            Assert.assertEquals(value, read);
+
+            //bob --> oncrpc4j
+            XdrOutput output = buildOutput();
+            output.write(value);
+            byte[] payload2 = getPayload(output);
+            Assert.assertArrayEquals(payload, payload2); //binary compatibility
+            oncrpc4j = buildOncrpc4j(payload2);
+            read = oncrpc4j.xdrDecodeLong();
+            Assert.assertEquals(value, read);
         }
     }
 }

@@ -7,4 +7,6 @@ import java.io.IOException;
  */
 public interface XdrInput {
     boolean readBoolean() throws IOException;
+    int readInt() throws IOException;
+    long readLong() throws IOException;
 }
