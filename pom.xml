@@ -69,6 +69,12 @@
                     <groupId>org.eluder.coveralls</groupId>
                     <artifactId>coveralls-maven-plugin</artifactId>
                     <version>4.0.0</version>
+                    <configuration>
+                        <!-- TODO - this is probably an issue with the antlr4 plugin not adding this as a source dir? -->
+                        <sourceDirectories>
+                            <sourceDirectory>${project.build.directory}/generated-sources/antlr4</sourceDirectory>
+                        </sourceDirectories>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <!-- this will not run until you execute mvn org.pitest:pitest-maven:mutationCoverage -->
@@ -139,8 +145,7 @@
                                 <argument>-package</argument>
                                 <argument>net.radai.bob.grammar</argument>
                             </arguments>
-                            <outputDirectory>${project.build.directory}/generated-sources/antlr4/net/radai/bob/grammar
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/generated-sources/antlr4/net/radai/bob/grammar</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
