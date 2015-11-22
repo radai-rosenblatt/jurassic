@@ -3,6 +3,7 @@ package net.radai.bob.runtime.wire.impl.streams;
 import net.radai.bob.runtime.model.XdrSerializable;
 import net.radai.bob.runtime.wire.XdrOutput;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -12,7 +13,7 @@ import java.util.Collection;
 /**
  * @author Radai Rosenblatt
  */
-public class StreamXdrOutput implements XdrOutput {
+public class StreamXdrOutput implements XdrOutput, Closeable {
     private OutputStream out;
 
     public StreamXdrOutput(OutputStream out) {
@@ -105,5 +106,10 @@ public class StreamXdrOutput implements XdrOutput {
     public void writeVariable(Collection<? extends XdrSerializable> data) throws IOException{
         write(data.size());
         writeFixed(data);
+    }
+
+    @Override
+    public void close() throws IOException {
+        //nop. we don't close the underlying stream
     }
 }
