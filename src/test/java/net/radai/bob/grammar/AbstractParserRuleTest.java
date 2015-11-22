@@ -40,16 +40,16 @@ public abstract class AbstractParserRuleTest {
     @Before
     public void resolveParseMethod() throws Exception {
         String methodName = getRuleName();
-        parsingMethod = ONCRPCv2Parser.class.getDeclaredMethod(methodName);
+        parsingMethod = oncrpcv2Parser.class.getDeclaredMethod(methodName);
     }
 
     protected ParseTree parse(String expr) throws Exception {
         ValidatingErrorListener errorListener = new ValidatingErrorListener();
         ANTLRInputStream input = new ANTLRInputStream(new StringReader(expr));
-        ONCRPCv2Lexer lexer = new ONCRPCv2Lexer(input);
+        oncrpcv2Lexer lexer = new oncrpcv2Lexer(input);
         lexer.addErrorListener(errorListener);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        ONCRPCv2Parser parser = new ONCRPCv2Parser(tokens);
+        oncrpcv2Parser parser = new oncrpcv2Parser(tokens);
         parser.addErrorListener(errorListener);
 
         try {
@@ -75,7 +75,7 @@ public abstract class AbstractParserRuleTest {
         if (t instanceof RuleNode) {
             RuleNode rn = (RuleNode) t;
             int ri = rn.getRuleContext().getRuleIndex();
-            String ruleName = ONCRPCv2Parser.ruleNames[ri];
+            String ruleName = oncrpcv2Parser.ruleNames[ri];
             Assert.assertEquals(getRuleName(), ruleName);
         } else {
             Assert.fail();

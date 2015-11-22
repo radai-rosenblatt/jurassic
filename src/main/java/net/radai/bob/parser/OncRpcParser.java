@@ -17,8 +17,8 @@
 
 package net.radai.bob.parser;
 
-import net.radai.bob.grammar.ONCRPCv2Lexer;
-import net.radai.bob.grammar.ONCRPCv2Parser;
+import net.radai.bob.grammar.oncrpcv2Lexer;
+import net.radai.bob.grammar.oncrpcv2Parser;
 import net.radai.bob.model.*;
 import net.radai.bob.model.rpc.RpcProcedure;
 import net.radai.bob.model.rpc.RpcProgram;
@@ -48,17 +48,17 @@ public class OncRpcParser {
     public Namespace parse(Reader reader, Namespace resultsAccumulator) throws IOException {
         ValidatingErrorListener errorListener = new ValidatingErrorListener();
         ANTLRInputStream input = new ANTLRInputStream(reader);
-        ONCRPCv2Lexer lexer = new ONCRPCv2Lexer(input);
+        oncrpcv2Lexer lexer = new oncrpcv2Lexer(input);
         lexer.addErrorListener(errorListener);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        ONCRPCv2Parser parser = new ONCRPCv2Parser(tokens);
+        oncrpcv2Parser parser = new oncrpcv2Parser(tokens);
         parser.addErrorListener(errorListener);
-        ONCRPCv2Parser.Oncrpcv2SpecificationContext tree = parser.oncrpcv2Specification();
+        oncrpcv2Parser.Oncrpcv2SpecificationContext tree = parser.oncrpcv2Specification();
 
         Namespace results = resultsAccumulator != null ? resultsAccumulator : new Namespace();
 
-        for (ONCRPCv2Parser.XdrSpecificationContext xdrSpec : tree.xdrSpecification()) {
-            for (ONCRPCv2Parser.DefinitionContext definition : xdrSpec.definition()) {
+        for (oncrpcv2Parser.XdrSpecificationContext xdrSpec : tree.xdrSpecification()) {
+            for (oncrpcv2Parser.DefinitionContext definition : xdrSpec.definition()) {
                 if (definition.typeDef() != null) {
                     //top-level type
                     XdrDeclaration type = parseTypedef(definition.typeDef(), results);
@@ -70,7 +70,7 @@ public class OncRpcParser {
                 }
             }
         }
-        for (ONCRPCv2Parser.ProgramDefContext programDef : tree.programDef()) {
+        for (oncrpcv2Parser.ProgramDefContext programDef : tree.programDef()) {
             RpcProgram program = parseProgramDef(programDef, results);
             results.register(program);
         }
@@ -78,7 +78,7 @@ public class OncRpcParser {
         return results;
     }
 
-    private XdrConstant parseConstant(ONCRPCv2Parser.ConstantDefContext ctx) {
+    private XdrConstant parseConstant(oncrpcv2Parser.ConstantDefContext ctx) {
         String identifier = ctx.IDENTIFIER().getText();
         TerminalNode constantNode = AntlrUtil.resolveToTerminal(ctx.constant());
         BigInteger value = parseInteger(constantNode.getSymbol());
@@ -88,19 +88,19 @@ public class OncRpcParser {
     private static BigInteger parseInteger(Token token) {
         String text = token.getText();
         switch (token.getType()) {
-            case ONCRPCv2Parser.DECIMAL:
+            case oncrpcv2Parser.DECIMAL:
                 return new BigInteger(text);
-            case ONCRPCv2Parser.HEXADECIMAL:
+            case oncrpcv2Parser.HEXADECIMAL:
                 return new BigInteger(text.substring(2)); //drop "0x" prefix
-            case ONCRPCv2Parser.OCTAL:
+            case oncrpcv2Parser.OCTAL:
                 return new BigInteger(text.substring(1)); //drop "0" prefix
             default:
                 throw new IllegalArgumentException("unable to parse integer from token: " + token
-                        + " of type " + ONCRPCv2Lexer.VOCABULARY.getDisplayName(token.getType()));
+                        + " of type " + oncrpcv2Lexer.VOCABULARY.getDisplayName(token.getType()));
         }
     }
 
-    private XdrDeclaration parseTypedef(ONCRPCv2Parser.TypeDefContext ctx, Scope scope) {
+    private XdrDeclaration parseTypedef(oncrpcv2Parser.TypeDefContext ctx, Scope scope) {
         String firstWord = ctx.getChild(0).getText();
         XdrDeclaration declaration;
         if ("typedef".equals(firstWord)) {
@@ -132,7 +132,7 @@ public class OncRpcParser {
         return declaration;
     }
 
-    private XdrDeclaration parseDeclaration(ONCRPCv2Parser.DeclarationContext ctx, Scope parentScope) {
+    private XdrDeclaration parseDeclaration(oncrpcv2Parser.DeclarationContext ctx, Scope parentScope) {
         XdrDeclaration declaration = new XdrDeclaration();
         ParseTree firstChild = ctx.getChild(0);
         if (firstChild instanceof TerminalNode) {
@@ -177,7 +177,7 @@ public class OncRpcParser {
         return declaration;
     }
 
-    private XdrValue parseValue(ONCRPCv2Parser.ValueContext ctx) {
+    private XdrValue parseValue(oncrpcv2Parser.ValueContext ctx) {
         if (ctx.constant() != null) {
             BigInteger sizeLimit = parseInteger(AntlrUtil.resolveToTerminal(ctx.constant()).getSymbol());
             return new XdrConstantValue(sizeLimit);
@@ -186,7 +186,7 @@ public class OncRpcParser {
         }
     }
 
-    private XdrType parseType(ONCRPCv2Parser.TypeSpecifierContext ctx, Scope parentScope) {
+    private XdrType parseType(oncrpcv2Parser.TypeSpecifierContext ctx, Scope parentScope) {
         if (ctx.enumTypeSpec() != null) {
             return parseEnumType(ctx.enumTypeSpec().enumBody());
         }
@@ -227,36 +227,36 @@ public class OncRpcParser {
         }
     }
 
-    private XdrEnumType parseEnumType(ONCRPCv2Parser.EnumBodyContext ctx) {
+    private XdrEnumType parseEnumType(oncrpcv2Parser.EnumBodyContext ctx) {
         XdrEnumType result = new XdrEnumType();
         List<TerminalNode> identifiers = ctx.IDENTIFIER();
-        List<ONCRPCv2Parser.ValueContext> values = ctx.value();
+        List<oncrpcv2Parser.ValueContext> values = ctx.value();
         for (int i = 0; i < identifiers.size(); i++) {
             result.add(identifiers.get(i).getText(), parseValue(values.get(i)));
         }
         return result;
     }
 
-    private XdrStructType parseStructType(ONCRPCv2Parser.StructBodyContext ctx, Scope parentScope) {
+    private XdrStructType parseStructType(oncrpcv2Parser.StructBodyContext ctx, Scope parentScope) {
         XdrStructType result = new XdrStructType(parentScope);
-        for (ONCRPCv2Parser.DeclarationContext declaration : ctx.declaration()) {
+        for (oncrpcv2Parser.DeclarationContext declaration : ctx.declaration()) {
             XdrDeclaration field = parseDeclaration(declaration, result);
             result.addField(field);
         }
         return result;
     }
 
-    private XdrUnionType parseUnionType(ONCRPCv2Parser.UnionBodyContext ctx, Scope parentScope) {
-        List<ONCRPCv2Parser.DeclarationContext> declarations = ctx.declaration(); //1 or 2
+    private XdrUnionType parseUnionType(oncrpcv2Parser.UnionBodyContext ctx, Scope parentScope) {
+        List<oncrpcv2Parser.DeclarationContext> declarations = ctx.declaration(); //1 or 2
         XdrUnionType result = new XdrUnionType(parentScope);
         result.setDiscriminant(parseDeclaration(declarations.get(0), result));
         if (declarations.size() > 1) {
             //has a default arm
             result.add(null, parseDeclaration(declarations.get(1), result));
         }
-        for (ONCRPCv2Parser.CaseSpecContext arm : ctx.caseSpec()) {
+        for (oncrpcv2Parser.CaseSpecContext arm : ctx.caseSpec()) {
             HashSet<XdrValue> caseValues = new HashSet<>();
-            for (ONCRPCv2Parser.ValueContext value : arm.value()) {
+            for (oncrpcv2Parser.ValueContext value : arm.value()) {
                 caseValues.add(parseValue(value));
             }
             result.add(caseValues, parseDeclaration(arm.declaration(), result));
@@ -264,41 +264,48 @@ public class OncRpcParser {
         return result;
     }
 
-    private RpcProgram parseProgramDef(ONCRPCv2Parser.ProgramDefContext ctx, Scope parentScope) {
+    private RpcProgram parseProgramDef(oncrpcv2Parser.ProgramDefContext ctx, Scope parentScope) {
         RpcProgram result = new RpcProgram(parentScope);
         result.setName(ctx.IDENTIFIER().getText());
         result.setProgramNumber(parseInteger(AntlrUtil.resolveToTerminal(ctx.constant()).getSymbol()));
-        for (ONCRPCv2Parser.VersionDefContext versionDef : ctx.versionDef()) {
+        for (oncrpcv2Parser.VersionDefContext versionDef : ctx.versionDef()) {
             RpcProgramVersion version = parseProgramVersionDef(versionDef, result);
             result.add(version);
         }
         return result;
     }
 
-    private RpcProgramVersion parseProgramVersionDef(ONCRPCv2Parser.VersionDefContext ctx, Scope parentScope) {
+    private RpcProgramVersion parseProgramVersionDef(oncrpcv2Parser.VersionDefContext ctx, Scope parentScope) {
         RpcProgramVersion result = new RpcProgramVersion(parentScope);
         result.setIdentifier(ctx.IDENTIFIER().getText());
         result.setVersionNumber(parseInteger(AntlrUtil.resolveToTerminal(ctx.constant()).getSymbol()));
-        for (ONCRPCv2Parser.ProcedureDefContext procedureDef : ctx.procedureDef()) {
+        for (oncrpcv2Parser.ProcedureDefContext procedureDef : ctx.procedureDef()) {
             RpcProcedure procedure = parseProcedureDef(procedureDef, result);
             result.add(procedure);
         }
         return result;
     }
 
-    private RpcProcedure parseProcedureDef(ONCRPCv2Parser.ProcedureDefContext ctx, Scope parentScope) {
+    private RpcProcedure parseProcedureDef(oncrpcv2Parser.ProcedureDefContext ctx, Scope parentScope) {
         RpcProcedure result = new RpcProcedure();
         result.setName(ctx.IDENTIFIER().getText());
         result.setProcedureNumber(parseInteger(AntlrUtil.resolveToTerminal(ctx.constant()).getSymbol()));
 
-        ONCRPCv2Parser.ProcFirstArgContext firstArg = ctx.procFirstArg();
+        oncrpcv2Parser.ProcReturnContext returnTypeContext = ctx.procReturn();
+        if (returnTypeContext.typeSpecifier() != null) {
+            result.setReturnType(parseType(returnTypeContext.typeSpecifier(), parentScope));
+        } else {
+            result.setReturnType(XdrBasicType.VOID);
+        }
+
+        oncrpcv2Parser.ProcFirstArgContext firstArg = ctx.procFirstArg();
         if (firstArg.typeSpecifier() != null) {
             //method has at least one arg
             XdrType arg = parseType(firstArg.typeSpecifier(), null);
             result.add(arg);
             if (ctx.typeSpecifier() != null) {
                 //method has multiple args
-                for (ONCRPCv2Parser.TypeSpecifierContext typeSpecifier : ctx.typeSpecifier()) {
+                for (oncrpcv2Parser.TypeSpecifierContext typeSpecifier : ctx.typeSpecifier()) {
                     arg = parseType(typeSpecifier, null);
                     result.add(arg);
                 }

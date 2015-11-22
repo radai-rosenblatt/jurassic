@@ -33,7 +33,7 @@ public abstract class AbstractLexerRuleTest {
     protected Token parse(String expr) throws Exception {
         ValidatingErrorListener errorListener = new ValidatingErrorListener();
         ANTLRInputStream input = new ANTLRInputStream(new StringReader(expr));
-        ONCRPCv2Lexer lexer = new ONCRPCv2Lexer(input);
+        oncrpcv2Lexer lexer = new oncrpcv2Lexer(input);
         lexer.addErrorListener(errorListener);
         return lexer.nextToken();
     }
@@ -49,7 +49,7 @@ public abstract class AbstractLexerRuleTest {
 
     protected void assertCorrect(String expr) throws Exception{
         Token t = parse(expr);
-        String symbolicName = ONCRPCv2Lexer.VOCABULARY.getSymbolicName(t.getType());
+        String symbolicName = oncrpcv2Lexer.VOCABULARY.getSymbolicName(t.getType());
         Assert.assertEquals(getRuleName(), symbolicName);
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractLexerRuleTest {
         } catch (IllegalArgumentException e) {
             return; //thats a form of incorrect too
         }
-        String symbolicName = ONCRPCv2Lexer.VOCABULARY.getSymbolicName(t.getType());
+        String symbolicName = oncrpcv2Lexer.VOCABULARY.getSymbolicName(t.getType());
         Assert.assertNotEquals(getRuleName(), symbolicName);
     }
 }

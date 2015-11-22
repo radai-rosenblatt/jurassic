@@ -84,4 +84,9 @@ public class RpcProgramVersion implements Identifiable, Scope {
     public Scope getParent() {
         return parentScope;
     }
+
+    @Override
+    public String toString() {
+        return identifier + " = " + versionNumber;
+    }
 }

@@ -1,4 +1,4 @@
-grammar ONCRPCv2;
+grammar xdr;
 
 // parser rules
 
@@ -46,19 +46,6 @@ typeDef:
 ;
 definition: typeDef | constantDef;
 xdrSpecification: definition+; //this is the top level rule for xdr (rfc 4506)
-//oncrpcv2 additions (rfc 5531)
-programDef: 'program' IDENTIFIER '{'
-        versionDef
-        versionDef*
-    '}' '=' constant ';';
-versionDef: 'version' IDENTIFIER '{'
-        procedureDef
-        procedureDef*
-    '}' '=' constant ';';
-procedureDef: procReturn IDENTIFIER '(' procFirstArg (',' typeSpecifier)* ')' '=' constant ';';
-procReturn: 'void' | typeSpecifier;
-procFirstArg: 'void' | typeSpecifier;
-oncrpcv2Specification : (xdrSpecification | programDef)*; //this is the top level rule for oncrpcv2 (rfc 5531)
 
 // lexer rules
 

@@ -23,6 +23,7 @@ import net.radai.bob.model.xdr.XdrDeclaration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Pack200;
 
 /**
  * not thread safe
@@ -91,10 +92,18 @@ public class Namespace implements Scope {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (!constants.isEmpty()) {
-            sb.append(constants.size()).append(" consts");
+            sb.append(constants.size()).append(" consts, ");
+        }
+        if (!types.isEmpty()) {
+            sb.append(types.size()).append(" types, ");
+        }
+        if (!programs.isEmpty()) {
+            sb.append(programs.size()).append(" programs, ");
         }
         if (sb.length() == 0) {
             return "empty";
+        } else {
+            sb.delete(sb.length()-2, sb.length()); //last ", "
         }
         return sb.toString();
     }
