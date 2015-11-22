@@ -139,4 +139,74 @@ public abstract class AbstractXdrCodecTest {
             Assert.assertEquals(value, read);
         }
     }
+
+    @Test
+    public void testRoundTripFloat() throws Exception {
+        for (float value : new float[] {-Float.MAX_VALUE, -Float.MIN_NORMAL,
+                -Float.MIN_VALUE, 0, Float.MIN_VALUE, Float.MIN_NORMAL, Float.MAX_VALUE}) {
+            XdrOutput output = buildOutput();
+            output.write(value);
+            XdrInput input = flip(output);
+            float read = input.readFloat();
+            Assert.assertEquals(value, read, 0);
+        }
+    }
+
+    @Test
+    public void testCompatibilityFloat() throws Exception {
+        for (float value : new float[] {-Float.MAX_VALUE, -Float.MIN_NORMAL,
+                -Float.MIN_VALUE, 0, Float.MIN_VALUE, Float.MIN_NORMAL, Float.MAX_VALUE}) {
+            //oncrpc4j --> bob
+            Xdr oncrpc4j = buildOncrpc4j();
+            oncrpc4j.xdrEncodeFloat(value);
+            byte[] payload = getPayload(oncrpc4j);
+            XdrInput input = buildInput(payload);
+            float read = input.readFloat();
+            Assert.assertEquals(value, read, 0);
+
+            //bob --> oncrpc4j
+            XdrOutput output = buildOutput();
+            output.write(value);
+            byte[] payload2 = getPayload(output);
+            Assert.assertArrayEquals(payload, payload2); //binary compatibility
+            oncrpc4j = buildOncrpc4j(payload2);
+            read = oncrpc4j.xdrDecodeFloat();
+            Assert.assertEquals(value, read, 0);
+        }
+    }
+
+    @Test
+    public void testRoundTripDouble() throws Exception {
+        for (double value : new double[] {-Double.MAX_VALUE, -Float.MAX_VALUE, -Float.MIN_NORMAL,
+                -Float.MIN_VALUE, 0, Float.MIN_VALUE, Float.MIN_NORMAL, Float.MAX_VALUE, Double.MAX_VALUE}) {
+            XdrOutput output = buildOutput();
+            output.write(value);
+            XdrInput input = flip(output);
+            double read = input.readDouble();
+            Assert.assertEquals(value, read, 0);
+        }
+    }
+
+    @Test
+    public void testCompatibilityDouble() throws Exception {
+        for (double value : new double[] {-Double.MAX_VALUE, -Float.MAX_VALUE, -Float.MIN_NORMAL,
+                -Float.MIN_VALUE, 0, Float.MIN_VALUE, Float.MIN_NORMAL, Float.MAX_VALUE, Double.MAX_VALUE}) {
+            //oncrpc4j --> bob
+            Xdr oncrpc4j = buildOncrpc4j();
+            oncrpc4j.xdrEncodeDouble(value);
+            byte[] payload = getPayload(oncrpc4j);
+            XdrInput input = buildInput(payload);
+            double read = input.readDouble();
+            Assert.assertEquals(value, read, 0);
+
+            //bob --> oncrpc4j
+            XdrOutput output = buildOutput();
+            output.write(value);
+            byte[] payload2 = getPayload(output);
+            Assert.assertArrayEquals(payload, payload2); //binary compatibility
+            oncrpc4j = buildOncrpc4j(payload2);
+            read = oncrpc4j.xdrDecodeDouble();
+            Assert.assertEquals(value, read, 0);
+        }
+    }
 }

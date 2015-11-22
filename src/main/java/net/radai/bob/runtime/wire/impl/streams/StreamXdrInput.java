@@ -50,6 +50,16 @@ public class StreamXdrInput implements XdrInput, Closeable {
         );
     }
 
+    @Override
+    public float readFloat() throws IOException {
+        return Float.intBitsToFloat(readInt());
+    }
+
+    @Override
+    public double readDouble() throws IOException {
+        return Double.longBitsToDouble(readLong());
+    }
+
     //TODO - optimize these to use int read() directly
     private void read4Bytes() throws IOException {
         int bytesRead = in.read(buf, 0, 4);
