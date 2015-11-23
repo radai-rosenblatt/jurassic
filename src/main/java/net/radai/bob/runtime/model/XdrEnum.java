@@ -11,7 +11,7 @@ public interface XdrEnum extends XdrSerializable {
     int value();
 
     @Override
-    default void serializeTo(XdrOutput output) throws IOException {
-        output.write(value());
+    default int serializeTo(XdrOutput output) throws IOException {
+        return output.write(value());
     }
 }

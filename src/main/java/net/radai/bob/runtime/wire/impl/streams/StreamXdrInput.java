@@ -5,12 +5,15 @@ import net.radai.bob.runtime.wire.XdrInput;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 /**
  * Created by Radai Rosenblatt
  */
 public class StreamXdrInput implements XdrInput, Closeable {
-    private InputStream in;
+    private final Charset ascii = Charset.forName("ASCII");
+    private final InputStream in;
 
     public StreamXdrInput(InputStream in) {
         this.in = in;
@@ -58,6 +61,17 @@ public class StreamXdrInput implements XdrInput, Closeable {
     @Override
     public double readDouble() throws IOException {
         return Double.longBitsToDouble(readLong());
+    }
+
+    @Override
+    public String readString() throws IOException {
+        int numChars = readInt();
+        byte[] buffer = new byte[numChars];
+        int bytesRead = in.read(buffer);
+        if (bytesRead != numChars) {
+            throw new IllegalStateException("expected to read " + numChars + " bytes. instead got " + bytesRead);
+        }
+        return ascii.decode(ByteBuffer.wrap(buffer)).toString();
     }
 
     //TODO - optimize these to use int read() directly

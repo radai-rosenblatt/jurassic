@@ -13,5 +13,5 @@ public interface XdrSerializable {
      * @param output XdrOutput to serialize to
      * @throws IOException
      */
-    void serializeTo(XdrOutput output) throws IOException;
+    int serializeTo(XdrOutput output) throws IOException;
 }

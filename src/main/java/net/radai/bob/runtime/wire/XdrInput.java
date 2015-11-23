@@ -11,4 +11,5 @@ public interface XdrInput {
     long readLong() throws IOException;
     float readFloat() throws IOException;
     double readDouble() throws IOException;
+    String readString() throws IOException;
 }
