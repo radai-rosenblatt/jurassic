@@ -59,6 +59,9 @@ public class StreamXdrInput implements XdrInput, Closeable {
 
     @Override
     public byte[] readFixedByteArray(int ofSize) throws IOException {
+        if (ofSize == 0) {
+            return EMPTY_BYTE_ARRAY;
+        }
         byte[] result = new byte[ofSize];
         readIntoBuffer(ofSize, result);
         int padding = ofSize % 4;
