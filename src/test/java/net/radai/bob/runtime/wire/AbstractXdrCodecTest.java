@@ -362,4 +362,56 @@ public abstract class AbstractXdrCodecTest {
             }
         }
     }
+
+    @Test
+    public void testRoundTripFixedBooleanArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                boolean[] value = new boolean[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextBoolean();
+                }
+
+                XdrOutput output = buildOutput();
+                output.writeFixed(value);
+                XdrInput input = flip(output);
+                boolean[] read = input.readFixedBooleanArray(value.length);
+                Assert.assertArrayEquals(value, read);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    //oncrpc doesnt support fixed bool[] ?
+
+    @Test
+    public void testRoundTripVariableBooleanArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                boolean[] value = new boolean[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextBoolean();
+                }
+
+                XdrOutput output = buildOutput();
+                output.writeVariable(value);
+                XdrInput input = flip(output);
+                boolean[] read = input.readVariableBooleanArray();
+                Assert.assertArrayEquals(value, read);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    //oncrpc doesnt support variable bool[] ?
 }

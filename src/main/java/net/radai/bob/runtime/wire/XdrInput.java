@@ -22,4 +22,14 @@ public interface XdrInput {
     default byte[] readVariableByteArray() throws IOException {
         return readFixedByteArray(readInt());
     }
+    default boolean[] readFixedBooleanArray(int ofSize) throws IOException {
+        boolean[] result = new boolean[ofSize];
+        for (int i=0; i<ofSize; i++) {
+            result[i] = readBoolean();
+        }
+        return result;
+    }
+    default boolean[] readVariableBooleanArray() throws IOException {
+        return readFixedBooleanArray(readInt());
+    }
 }
