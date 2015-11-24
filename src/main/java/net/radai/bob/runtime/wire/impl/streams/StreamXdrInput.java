@@ -22,14 +22,8 @@ public class StreamXdrInput implements XdrInput, Closeable {
     private final byte[] buf = new byte[8];
 
     @Override
-    public boolean readBoolean() throws IOException {
-        read4Bytes();
-        return buf[3] != 0; //very lax
-    }
-
-    @Override
     public int readInt() throws IOException {
-        read4Bytes();
+        readIntoBuffer(4, buf);
         return (
                 ((buf[0] & 0xff) << 24)
               | ((buf[1] & 0xff) << 16)
@@ -40,7 +34,7 @@ public class StreamXdrInput implements XdrInput, Closeable {
 
     @Override
     public long readLong() throws IOException {
-        read8Bytes();
+        readIntoBuffer(8, buf);
         return (
                 (((long)buf[0] & 0xff) << 56)
               | (((long)buf[1] & 0xff) << 48)
@@ -54,67 +48,36 @@ public class StreamXdrInput implements XdrInput, Closeable {
     }
 
     @Override
-    public float readFloat() throws IOException {
-        return Float.intBitsToFloat(readInt());
-    }
-
-    @Override
-    public double readDouble() throws IOException {
-        return Double.longBitsToDouble(readLong());
-    }
-
-    @Override
     public String readString() throws IOException {
         int numChars = readInt();
         byte[] buffer = new byte[numChars];
-        int bytesRead = in.read(buffer);
-        if (bytesRead != numChars) {
-            throw new IllegalStateException("expected to read " + numChars + " bytes. instead got " + bytesRead);
-        }
+        readIntoBuffer(numChars, buffer);
         return ascii.decode(ByteBuffer.wrap(buffer)).toString();
     }
+
+
 
     @Override
     public byte[] readFixedByteArray(int ofSize) throws IOException {
         byte[] result = new byte[ofSize];
-        int bytesRead = in.read(result);
-        if (bytesRead != ofSize) {
-            throw new IllegalStateException("expected to read " + ofSize + " bytes. instead got " + bytesRead);
-        }
+        readIntoBuffer(ofSize, result);
         int padding = ofSize % 4;
         if (padding != 0) {
             padding = 4-padding;
-            bytesRead = in.read(buf, 0, padding); //read padding into buffer (just to consume it)
-            if (bytesRead != padding) {
-                throw new IllegalStateException("expected to read " + padding + " bytes. instead got " + bytesRead);
-            }
+            readIntoBuffer(padding, buf);
         }
         return result;
     }
 
     @Override
-    public byte[] readVariableByteArray() throws IOException {
-        int size = readInt();
-        return readFixedByteArray(size);
-    }
-
-    //TODO - optimize these to use int read() directly
-    private void read4Bytes() throws IOException {
-        int bytesRead = in.read(buf, 0, 4);
-        if (bytesRead != 4) {
-            throw new IllegalStateException("expected to read 4 bytes. instead got " + bytesRead);
-        }
-    }
-
-    private void read8Bytes() throws IOException {
-        int bytesRead = in.read(buf, 0, 8);
-        if (bytesRead != 8) {
-            throw new IllegalStateException("expected to read 8 bytes. instead got " + bytesRead);
-        }
-    }
-
-    @Override
     public void close() throws IOException {
 
+    }
+
+    private void readIntoBuffer(int numChars, byte[] buffer) throws IOException {
+        int bytesRead = in.read(buffer, 0, numChars);
+        if (bytesRead != numChars) {
+            throw new IllegalStateException("expected to read " + numChars + " bytes. instead got " + bytesRead);
+        }
     }
 }
