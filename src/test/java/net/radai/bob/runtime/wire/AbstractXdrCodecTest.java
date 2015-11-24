@@ -586,4 +586,244 @@ public abstract class AbstractXdrCodecTest {
             }
         }
     }
+
+    @Test
+    public void testRoundTripFixedFloatArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                float[] value = new float[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextFloat();
+                }
+
+                XdrOutput output = buildOutput();
+                output.writeFixed(value);
+                XdrInput input = flip(output);
+                float[] read = input.readFixedFloatArray(value.length);
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCompatibilityFixedFloatArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                float[] value = new float[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextFloat();
+                }
+
+                //oncrpc4j --> bob
+                Xdr oncrpc4j = buildOncrpc4j();
+                oncrpc4j.xdrEncodeFloatFixedVector(value, value.length);
+                byte[] payload = getPayload(oncrpc4j);
+                XdrInput input = buildInput(payload);
+                float[] read = input.readFixedFloatArray(value.length);
+                Assert.assertArrayEquals(value, read, 0);
+
+                //bob --> oncrpc4j
+                XdrOutput output = buildOutput();
+                int written = output.writeFixed(value);
+                byte[] payload2 = getPayload(output);
+                Assert.assertEquals(written, payload2.length);
+                Assert.assertArrayEquals(payload, payload2); //binary compatibility
+                oncrpc4j = buildOncrpc4j(payload2);
+                read = oncrpc4j.xdrDecodeFloatFixedVector(value.length);
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testRoundTripVariableFloatArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                float[] value = new float[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextFloat();
+                }
+
+                XdrOutput output = buildOutput();
+                output.writeVariable(value);
+                XdrInput input = flip(output);
+                float[] read = input.readVariableFloatArray();
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCompatibilityVariableFloatArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                float[] value = new float[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextFloat();
+                }
+
+                //oncrpc4j --> bob
+                Xdr oncrpc4j = buildOncrpc4j();
+                oncrpc4j.xdrEncodeFloatVector(value);
+                byte[] payload = getPayload(oncrpc4j);
+                XdrInput input = buildInput(payload);
+                float[] read = input.readVariableFloatArray();
+                Assert.assertArrayEquals(value, read, 0);
+
+                //bob --> oncrpc4j
+                XdrOutput output = buildOutput();
+                int written = output.writeVariable(value);
+                byte[] payload2 = getPayload(output);
+                Assert.assertEquals(written, payload2.length);
+                Assert.assertArrayEquals(payload, payload2); //binary compatibility
+                oncrpc4j = buildOncrpc4j(payload2);
+                read = oncrpc4j.xdrDecodeFloatVector();
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testRoundTripFixedDoubleArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                double[] value = new double[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextDouble();
+                }
+
+                XdrOutput output = buildOutput();
+                output.writeFixed(value);
+                XdrInput input = flip(output);
+                double[] read = input.readFixedDoubleArray(value.length);
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCompatibilityFixedDoubleArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                double[] value = new double[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextDouble();
+                }
+
+                //oncrpc4j --> bob
+                Xdr oncrpc4j = buildOncrpc4j();
+                oncrpc4j.xdrEncodeDoubleFixedVector(value, value.length);
+                byte[] payload = getPayload(oncrpc4j);
+                XdrInput input = buildInput(payload);
+                double[] read = input.readFixedDoubleArray(value.length);
+                Assert.assertArrayEquals(value, read, 0);
+
+                //bob --> oncrpc4j
+                XdrOutput output = buildOutput();
+                int written = output.writeFixed(value);
+                byte[] payload2 = getPayload(output);
+                Assert.assertEquals(written, payload2.length);
+                Assert.assertArrayEquals(payload, payload2); //binary compatibility
+                oncrpc4j = buildOncrpc4j(payload2);
+                read = oncrpc4j.xdrDecodeDoubleFixedVector(value.length);
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testRoundTripVariableDoubleArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                double[] value = new double[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextDouble();
+                }
+
+                XdrOutput output = buildOutput();
+                output.writeVariable(value);
+                XdrInput input = flip(output);
+                double[] read = input.readVariableDoubleArray();
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCompatibilityVariableDoubleArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                double[] value = new double[r.nextInt(100)];
+                for (int j=0; j<value.length; j++) {
+                    value[j] = r.nextDouble();
+                }
+
+                //oncrpc4j --> bob
+                Xdr oncrpc4j = buildOncrpc4j();
+                oncrpc4j.xdrEncodeDoubleVector(value);
+                byte[] payload = getPayload(oncrpc4j);
+                XdrInput input = buildInput(payload);
+                double[] read = input.readVariableDoubleArray();
+                Assert.assertArrayEquals(value, read, 0);
+
+                //bob --> oncrpc4j
+                XdrOutput output = buildOutput();
+                int written = output.writeVariable(value);
+                byte[] payload2 = getPayload(output);
+                Assert.assertEquals(written, payload2.length);
+                Assert.assertArrayEquals(payload, payload2); //binary compatibility
+                oncrpc4j = buildOncrpc4j(payload2);
+                read = oncrpc4j.xdrDecodeDoubleVector();
+                Assert.assertArrayEquals(value, read, 0);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
 }
