@@ -74,6 +74,30 @@ public class StreamXdrInput implements XdrInput, Closeable {
         return ascii.decode(ByteBuffer.wrap(buffer)).toString();
     }
 
+    @Override
+    public byte[] readFixedByteArray(int ofSize) throws IOException {
+        byte[] result = new byte[ofSize];
+        int bytesRead = in.read(result);
+        if (bytesRead != ofSize) {
+            throw new IllegalStateException("expected to read " + ofSize + " bytes. instead got " + bytesRead);
+        }
+        int padding = ofSize % 4;
+        if (padding != 0) {
+            padding = 4-padding;
+            bytesRead = in.read(buf, 0, padding); //read padding into buffer (just to consume it)
+            if (bytesRead != padding) {
+                throw new IllegalStateException("expected to read " + padding + " bytes. instead got " + bytesRead);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public byte[] readVariableByteArray() throws IOException {
+        int size = readInt();
+        return readFixedByteArray(size);
+    }
+
     //TODO - optimize these to use int read() directly
     private void read4Bytes() throws IOException {
         int bytesRead = in.read(buf, 0, 4);

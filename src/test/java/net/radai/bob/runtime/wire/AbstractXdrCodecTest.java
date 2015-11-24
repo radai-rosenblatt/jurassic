@@ -6,6 +6,8 @@ import org.glassfish.grizzly.memory.HeapBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Random;
+
 /**
  * Created by Radai Rosenblatt
  */
@@ -246,6 +248,118 @@ public abstract class AbstractXdrCodecTest {
             oncrpc4j = buildOncrpc4j(payload2);
             read = oncrpc4j.xdrDecodeString();
             Assert.assertEquals(value, read);
+        }
+    }
+
+    @Test
+    public void testRoundTripFixedByteArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                byte[] value = new byte[r.nextInt(100)];
+                r.nextBytes(value);
+
+                XdrOutput output = buildOutput();
+                output.writeFixed(value);
+                XdrInput input = flip(output);
+                byte[] read = input.readFixedByteArray(value.length);
+                Assert.assertArrayEquals(value, read);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCompatibilityFixedByteArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                byte[] value = new byte[r.nextInt(100)];
+                r.nextBytes(value);
+
+                //oncrpc4j --> bob
+                Xdr oncrpc4j = buildOncrpc4j();
+                oncrpc4j.xdrEncodeOpaque(value, value.length);
+                byte[] payload = getPayload(oncrpc4j);
+                XdrInput input = buildInput(payload);
+                byte[] read = input.readFixedByteArray(value.length);
+                Assert.assertArrayEquals(value, read);
+
+                //bob --> oncrpc4j
+                XdrOutput output = buildOutput();
+                int written = output.writeFixed(value);
+                byte[] payload2 = getPayload(output);
+                Assert.assertEquals(written, payload2.length);
+                Assert.assertArrayEquals(payload, payload2); //binary compatibility
+                oncrpc4j = buildOncrpc4j(payload2);
+                read = oncrpc4j.xdrDecodeOpaque(value.length);
+                Assert.assertArrayEquals(value, read);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testRoundTripVariableByteArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                byte[] value = new byte[r.nextInt(100)];
+                r.nextBytes(value);
+
+                XdrOutput output = buildOutput();
+                output.writeVariable(value);
+                XdrInput input = flip(output);
+                byte[] read = input.readVariableByteArray();
+                Assert.assertArrayEquals(value, read);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCompatibilityVariableByteArray() throws Exception {
+        long seed = 42;
+        for (int i=0; i<10; i++) {
+            try {
+                seed = System.currentTimeMillis();
+                Random r = new Random(seed);
+                byte[] value = new byte[r.nextInt(100)];
+                r.nextBytes(value);
+
+                //oncrpc4j --> bob
+                Xdr oncrpc4j = buildOncrpc4j();
+                oncrpc4j.xdrEncodeDynamicOpaque(value);
+                byte[] payload = getPayload(oncrpc4j);
+                XdrInput input = buildInput(payload);
+                byte[] read = input.readVariableByteArray();
+                Assert.assertArrayEquals(value, read);
+
+                //bob --> oncrpc4j
+                XdrOutput output = buildOutput();
+                int written = output.writeVariable(value);
+                byte[] payload2 = getPayload(output);
+                Assert.assertEquals(written, payload2.length);
+                Assert.assertArrayEquals(payload, payload2); //binary compatibility
+                oncrpc4j = buildOncrpc4j(payload2);
+                read = oncrpc4j.xdrDecodeDynamicOpaque();
+                Assert.assertArrayEquals(value, read);
+            } catch (Exception | AssertionError e) {
+                System.err.println("seed is " + seed);
+                throw e;
+            }
         }
     }
 }

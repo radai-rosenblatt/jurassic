@@ -12,4 +12,6 @@ public interface XdrInput {
     float readFloat() throws IOException;
     double readDouble() throws IOException;
     String readString() throws IOException;
+    byte[] readFixedByteArray(int ofSize) throws IOException;
+    byte[] readVariableByteArray() throws IOException;
 }
