@@ -41,11 +41,15 @@ import java.util.List;
  */
 public class OncRpcParser {
 
-    public Namespace parse(Reader reader) throws IOException {
-        return parse(reader, null);
+    public Namespace parse(Reader reader, String name) throws IOException {
+        Namespace result = new Namespace(name);
+        return parse(reader, result);
     }
 
     public Namespace parse(Reader reader, Namespace resultsAccumulator) throws IOException {
+        if (resultsAccumulator == null) {
+            throw new IllegalArgumentException("namespace argument cannot be null");
+        }
         ValidatingErrorListener errorListener = new ValidatingErrorListener();
         ANTLRInputStream input = new ANTLRInputStream(reader);
         oncrpcv2Lexer lexer = new oncrpcv2Lexer(input);
@@ -55,27 +59,25 @@ public class OncRpcParser {
         parser.addErrorListener(errorListener);
         oncrpcv2Parser.Oncrpcv2SpecificationContext tree = parser.oncrpcv2Specification();
 
-        Namespace results = resultsAccumulator != null ? resultsAccumulator : new Namespace();
-
         for (oncrpcv2Parser.XdrSpecificationContext xdrSpec : tree.xdrSpecification()) {
             for (oncrpcv2Parser.DefinitionContext definition : xdrSpec.definition()) {
                 if (definition.typeDef() != null) {
                     //top-level type
-                    XdrDeclaration type = parseTypedef(definition.typeDef(), results);
-                    results.register(type);
+                    XdrDeclaration type = parseTypedef(definition.typeDef(), resultsAccumulator);
+                    resultsAccumulator.register(type);
                 } else {
                     //constant (these are always top level)
                     XdrConstant constant = parseConstant(definition.constantDef());
-                    results.register(constant);
+                    resultsAccumulator.register(constant);
                 }
             }
         }
         for (oncrpcv2Parser.ProgramDefContext programDef : tree.programDef()) {
-            RpcProgram program = parseProgramDef(programDef, results);
-            results.register(program);
+            RpcProgram program = parseProgramDef(programDef, resultsAccumulator);
+            resultsAccumulator.register(program);
         }
 
-        return results;
+        return resultsAccumulator;
     }
 
     private XdrConstant parseConstant(oncrpcv2Parser.ConstantDefContext ctx) {

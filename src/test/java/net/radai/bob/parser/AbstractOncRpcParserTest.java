@@ -35,7 +35,7 @@ public abstract class AbstractOncRpcParserTest {
 
     protected Namespace parse(Reader reader) throws IOException {
         OncRpcParser parser = new OncRpcParser();
-        return parser.parse(reader);
+        return parser.parse(reader, "test");
     }
 
     protected Namespace parse(String oncrpc) {

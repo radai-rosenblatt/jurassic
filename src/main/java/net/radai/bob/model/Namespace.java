@@ -23,16 +23,27 @@ import net.radai.bob.model.xdr.XdrDeclaration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.Pack200;
 
 /**
  * not thread safe
  * @author Radai Rosenblatt
  */
 public class Namespace implements Scope {
+    private final String name;
     private final Map<String, XdrConstant> constants = new HashMap<>();
     private final Map<String, XdrDeclaration> types = new HashMap<>();
     private final Map<String, RpcProgram> programs = new HashMap<>();
+
+    public Namespace(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("name must not be null or empty");
+        }
+        this.name = name.trim();
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public void register(XdrConstant constant) {
         verifyUnused(constant.getIdentifier());
@@ -47,6 +58,18 @@ public class Namespace implements Scope {
     public void register(RpcProgram program) {
         verifyUnused(program.getName());
         programs.put(program.getName(), program);
+    }
+
+    public Map<String, XdrConstant> getConstants() {
+        return constants;
+    }
+
+    public Map<String, XdrDeclaration> getTypes() {
+        return types;
+    }
+
+    public Map<String, RpcProgram> getPrograms() {
+        return programs;
     }
 
     @Override

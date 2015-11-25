@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class XdrStructType extends XdrType implements Scope {
     private final Scope parentScope;
-    private List<XdrDeclaration> fields = new ArrayList<>();
+    private List<XdrDeclaration> fields = new ArrayList<>(); //field order is important
 
     public XdrStructType(Scope parentScope) {
         this.parentScope = parentScope;

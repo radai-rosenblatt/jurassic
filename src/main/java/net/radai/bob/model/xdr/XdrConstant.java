@@ -39,6 +39,38 @@ public class XdrConstant implements Identifiable {
         this.value = value;
     }
 
+    public boolean fitsInt() {
+        try{
+            //noinspection ResultOfMethodCallIgnored
+            value.intValueExact();
+            return true;
+        } catch (ArithmeticException e) {
+            return false;
+        }
+    }
+
+    public int asInt() {
+        return value.intValueExact();
+    }
+
+    public boolean fitsLong() {
+        try{
+            //noinspection ResultOfMethodCallIgnored
+            value.longValueExact();
+            return true;
+        } catch (ArithmeticException e) {
+            return false;
+        }
+    }
+
+    public long asLong() {
+        return value.longValueExact();
+    }
+
+    public BigInteger asBigInteger() {
+        return value;
+    }
+
     @Override
     public String getIdentifier() {
         return identifier;
