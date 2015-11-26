@@ -17,21 +17,20 @@
 
 package net.radai.bob.model.xdr;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Radai Rosenblatt
  */
 public class XdrEnumType extends XdrType {
-    private Map<String, XdrValue> values = new HashMap<>();
+    private LinkedHashMap<String, XdrValue> values = new LinkedHashMap<>(); //preserve order of declaration
 
     @Override
     public XdrTypes getType() {
         return XdrTypes.ENUM;
     }
 
-    public Map<String, XdrValue> getValues() {
+    public LinkedHashMap<String, XdrValue> getValues() {
         return values;
     }
 
@@ -42,6 +41,9 @@ public class XdrEnumType extends XdrType {
     }
 
     public XdrValue get(String identifier) {
+        if (!values.containsKey(identifier)) {
+            throw new IllegalArgumentException("unknown identifier " + identifier);
+        }
         return values.get(identifier);
     }
 }

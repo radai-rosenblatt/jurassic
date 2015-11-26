@@ -1,6 +1,7 @@
 package net.radai.bob.codegen;
 
 import net.radai.bob.model.Namespace;
+import net.radai.bob.model.xdr.XdrDeclaration;
 import net.radai.bob.util.Util;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,6 +18,8 @@ import java.util.Map;
  */
 public class OncRpcGenTest {
 
+    private OncRpcGen gen = new OncRpcGen();
+
     @Test
     public void testConstsGeneration() throws Exception {
         Namespace namespace = Util.parse(
@@ -28,9 +31,7 @@ public class OncRpcGenTest {
               + "const c6 = 0xB0B;\n" //hex
               + "const c7 = 077;\n" //octal
         );
-        OncRpcGen gen = new OncRpcGen();
         Map<Path, String> result = gen.generate(namespace);
-        Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());
 
         String constsFileName = namespace.getName() + "Consts";
@@ -49,5 +50,39 @@ public class OncRpcGenTest {
         Assert.assertEquals(new BigInteger("9223372036854775808"), ReflectionTestUtils.getField(generatedClass, "c5"));
         Assert.assertEquals(2827, ReflectionTestUtils.getField(generatedClass, "c6"));
         Assert.assertEquals(63, ReflectionTestUtils.getField(generatedClass, "c7"));
+    }
+
+    @Test
+    public void testEnumGeneration() throws Exception {
+        String[] variations = new String[] {
+                "enum Bob {\n" +
+                "    ALT1 = 0,\n" +
+                "    ALT2 = 10,\n" +
+                "    ALT3 = 0xB0B\n" +
+                "};",
+                "typedef enum {\n" +
+                "    ALT1 = 0,\n" +
+                "    ALT2 = 10,\n" +
+                "    ALT3 = 0xB0B\n" +
+                "} Bob;"
+        };
+        for (String xdr : variations) {
+            Namespace namespace = Util.parse(xdr);
+            Map<String, XdrDeclaration> types = namespace.getTypes();
+            Assert.assertEquals(1, types.size());
+            Assert.assertTrue(types.containsKey("Bob"));
+
+            Map<Path, String> result = gen.generate(namespace);
+            Assert.assertEquals(1, result.size());
+            String source = result.get(Paths.get("Bob"));
+            Assert.assertFalse(source.isEmpty());
+
+            Class<?> generatedClass = InMemoryJavaCompiler.compile("Bob", source);
+            Assert.assertTrue(generatedClass.isEnum());
+            Assert.assertEquals(0, ReflectionTestUtils.invokeGetterMethod(generatedClass.getDeclaredField("ALT1").get(null), "value"));
+            Assert.assertEquals(10, ReflectionTestUtils.invokeGetterMethod(generatedClass.getDeclaredField("ALT2").get(null), "value"));
+            Assert.assertEquals(2827, ReflectionTestUtils.invokeGetterMethod(generatedClass.getDeclaredField("ALT3").get(null), "value"));
+            //TODO - figure out a way to assert enum values are in order of xdr declaration ...
+        }
     }
 }
