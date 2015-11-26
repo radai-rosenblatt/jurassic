@@ -19,6 +19,7 @@ package net.radai.bob.parser;
 
 import net.radai.bob.model.Namespace;
 import net.radai.bob.model.xdr.XdrConstant;
+import net.radai.bob.util.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,11 +28,11 @@ import java.math.BigInteger;
 /**
  * @author Radai Rosenblatt
  */
-public class SimpleOncRpcParserTest extends AbstractOncRpcParserTest {
+public class SimpleOncRpcParserTest {
 
     @Test
     public void testConstDefinition() throws Exception {
-        Namespace results = parse("const HUGE_CONST = 18446744073709551615;");
+        Namespace results = Util.parse("const HUGE_CONST = 18446744073709551615;");
         XdrConstant parsed = results.getConstant("HUGE_CONST");
         Assert.assertNotNull(parsed);
         Assert.assertEquals("HUGE_CONST", parsed.getIdentifier());
@@ -40,18 +41,16 @@ public class SimpleOncRpcParserTest extends AbstractOncRpcParserTest {
 
     @Test
     public void testConst() {
-        Namespace results = parse("const FALSE = 0; const TRUE = 1;");
-        int g = 7;
+        Namespace results = Util.parse("const FALSE = 0; const TRUE = 1;");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNoIdentifier() throws Exception {
-        Namespace results = parse("typedef void;");
+        Namespace results = Util.parse("typedef void;");
     }
 
     @Test
     public void testUglyEnumDef() throws Exception {
-        Namespace results = parse("typedef enum { FALSE = 0, TRUE = 1 } bob;");
-        int g = 7;
+        Namespace results = Util.parse("typedef enum { FALSE = 0, TRUE = 1 } bob;");
     }
 }

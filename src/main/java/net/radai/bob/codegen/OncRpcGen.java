@@ -25,7 +25,7 @@ public class OncRpcGen {
         List<Map.Entry<String, XdrConstant>> sortedConstants = new ArrayList<>(namespace.getConstants().entrySet());
         Collections.sort(sortedConstants, (e1, e2) -> e1.getKey().compareTo(e2.getKey())); //by name
 
-        Set<JavaType> generatedTypes = new HashSet<>();
+        List<JavaType> generatedTypes = new ArrayList<>();
         JavaInterfaceSource constsClass = Roaster.create(JavaInterfaceSource.class);
 
         constsClass.setName(namespace.getName() + "Consts");
@@ -53,7 +53,7 @@ public class OncRpcGen {
             } else {
                 pathBits = null;
             }
-            Path relativePath = Paths.get(first, pathBits);
+            Path relativePath = pathBits != null ? Paths.get(first, pathBits) : Paths.get(first);
             String sourceCode = Roaster.format(constsClass.toUnformattedString());
             javaFiles.put(relativePath, sourceCode);
         }
