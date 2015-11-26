@@ -93,9 +93,9 @@ public class OncRpcParser {
             case oncrpcv2Parser.DECIMAL:
                 return new BigInteger(text);
             case oncrpcv2Parser.HEXADECIMAL:
-                return new BigInteger(text.substring(2)); //drop "0x" prefix
+                return new BigInteger(text.substring(2), 16); //drop "0x" prefix
             case oncrpcv2Parser.OCTAL:
-                return new BigInteger(text.substring(1)); //drop "0" prefix
+                return new BigInteger(text.substring(1), 8); //drop "0" prefix
             default:
                 throw new IllegalArgumentException("unable to parse integer from token: " + token
                         + " of type " + oncrpcv2Lexer.VOCABULARY.getDisplayName(token.getType()));

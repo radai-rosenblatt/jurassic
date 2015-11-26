@@ -25,6 +25,8 @@ public class OncRpcGenTest {
               + "const c3 = 2147483648;\n" //int max + 1
               + "const c4 = 9223372036854775807;\n" //long max
               + "const c5 = 9223372036854775808;\n" //long max + 1
+              + "const c6 = 0xB0B;\n" //hex
+              + "const c7 = 077;\n" //octal
         );
         OncRpcGen gen = new OncRpcGen();
         Map<Path, String> result = gen.generate(namespace);
@@ -38,12 +40,14 @@ public class OncRpcGenTest {
         Assert.assertFalse(constsFileSource.isEmpty());
 
         Class<?> generatedClass = InMemoryJavaCompiler.compile(constsFileName, constsFileSource);
-        Assert.assertEquals(5, generatedClass.getDeclaredFields().length);
+        Assert.assertEquals(7, generatedClass.getDeclaredFields().length);
 
         Assert.assertEquals(1, ReflectionTestUtils.getField(generatedClass, "c1"));
         Assert.assertEquals(Integer.MAX_VALUE, ReflectionTestUtils.getField(generatedClass, "c2"));
         Assert.assertEquals(Integer.MAX_VALUE + 1L, ReflectionTestUtils.getField(generatedClass, "c3"));
         Assert.assertEquals(Long.MAX_VALUE, ReflectionTestUtils.getField(generatedClass, "c4"));
         Assert.assertEquals(new BigInteger("9223372036854775808"), ReflectionTestUtils.getField(generatedClass, "c5"));
+        Assert.assertEquals(2827, ReflectionTestUtils.getField(generatedClass, "c6"));
+        Assert.assertEquals(63, ReflectionTestUtils.getField(generatedClass, "c7"));
     }
 }
