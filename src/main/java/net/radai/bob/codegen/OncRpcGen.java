@@ -1,6 +1,8 @@
 package net.radai.bob.codegen;
 
+import net.radai.bob.model.Identifiable;
 import net.radai.bob.model.Namespace;
+import net.radai.bob.model.Scope;
 import net.radai.bob.model.xdr.*;
 import net.radai.bob.runtime.model.XdrEnum;
 import org.jboss.forge.roaster.Roaster;
@@ -18,26 +20,37 @@ import java.util.*;
  * Created by Radai Rosenblatt
  */
 public class OncRpcGen {
+    private Namespace namespace;
+    private List<JavaType> generatedTypes = new ArrayList<>();
+    private IdentityHashMap<XdrConstant, FieldSource> resolvedConstants = new IdentityHashMap<>();
+    private JavaInterfaceSource constsClass;
+
     /**
-     * @param namespace an oncrpc namespace to generate code for
      * @return a map of relative paths to file contents under each path
      */
     public Map<Path, String> generate(Namespace namespace) {
 
-        List<JavaType> generatedTypes = new ArrayList<>();
+        reset(namespace);
 
         Map<String, XdrConstant> constants = namespace.getConstants();
         if (constants != null && !constants.isEmpty()) {
-            JavaInterfaceSource constsClass = generateConstantsClass(constants, namespace.getName() + "Consts");
+            constsClass = generateConstantsClass(constants, namespace.getName() + "Consts");
             generatedTypes.add(constsClass);
         }
 
         Map<String, XdrDeclaration> types = namespace.getTypes();
         if (types != null && !types.isEmpty()) {
-            generatedTypes.addAll(generateTypeClasses(types));
+            generatedTypes.addAll(generateTypeClasses(types, namespace));
         }
 
         return render(generatedTypes);
+    }
+
+    private void reset(Namespace namespace) {
+        this.generatedTypes.clear();
+        this.resolvedConstants.clear();
+        this.constsClass = null;
+        this.namespace = namespace;
     }
 
     private JavaInterfaceSource generateConstantsClass(Map<String, XdrConstant> constants, String fqcn) {
@@ -57,22 +70,22 @@ public class OncRpcGen {
             } else {
                 field.setType(BigInteger.class).setLiteralInitializer("new BigInteger(\"" + constant.asBigInteger().toString() + "\")");
             }
+            resolvedConstants.put(constant, field);
         }
 
         return constsClass;
     }
 
-    private List<JavaType> generateTypeClasses(Map<String, XdrDeclaration> types) {
+    private List<JavaType> generateTypeClasses(Map<String, XdrDeclaration> types, Scope scope) {
 
         List<JavaType> results = new ArrayList<>(types.size());
 
         for (Map.Entry<String, XdrDeclaration> typeEntry : types.entrySet()) {
-            String typeName = typeEntry.getKey();
             XdrDeclaration declaration = typeEntry.getValue();
             XdrType type = declaration.getType();
             switch (type.getType()) {
                 case ENUM:
-                    results.add(generateEnumClass(declaration));
+                    results.add(generateEnumClass(declaration, scope));
                     break;
                 default:
                     throw new UnsupportedOperationException("unsupported declaration of type " + type.getType() + ": " + type);
@@ -82,7 +95,7 @@ public class OncRpcGen {
         return results;
     }
 
-    private JavaEnumSource generateEnumClass(XdrDeclaration declaration) {
+    private JavaEnumSource generateEnumClass(XdrDeclaration declaration, Scope scope) {
         XdrEnumType enumType = (XdrEnumType) declaration.getType();
 
         JavaEnumSource enumClass = Roaster.create(JavaEnumSource.class);
@@ -96,28 +109,53 @@ public class OncRpcGen {
 
         for (Map.Entry<String, XdrValue> entry : enumType.getValues().entrySet()) {
             String identifier = entry.getKey();
-            BigInteger instanceValue = resolve(entry.getValue());
-            int intValue;
-            try {
-                intValue = instanceValue.intValueExact();
-            } catch (ArithmeticException e) {
-                throw new IllegalArgumentException("instance " + identifier + " of enum " + declaration.getIdentifier()
-                        + " has value " + instanceValue + " which does not fit a signed integer");
+            XdrValue value = entry.getValue();
+            if (value instanceof XdrConstantValue) {
+                BigInteger instanceValue = ((XdrConstantValue)value).getValue();
+                int intValue;
+                try {
+                    intValue = instanceValue.intValueExact();
+                } catch (ArithmeticException e) {
+                    throw new IllegalArgumentException("instance " + identifier + " of enum " + declaration.getIdentifier()
+                            + " has value " + instanceValue + " which does not fit a signed integer");
+                }
+                enumClass.addEnumConstant(identifier).setConstructorArguments(intValue + "");
+            } else if (value instanceof XdrRefValue) {
+                String refName = ((XdrRefValue) value).getRefName();
+                XdrConstant resolvedTo = resolveConstant(refName, scope);
+                FieldSource constField = resolvedConstants.get(resolvedTo);
+                if (constField == null) {
+                    throw new IllegalStateException("unknown constant " + resolvedTo);
+                }
+                assert constsClass == constField.getOrigin();
+                if (!constsClass.isDefaultPackage()) {
+                    enumClass.addImport(constsClass);
+                }
+                enumClass.addEnumConstant(identifier).setConstructorArguments(constsClass.getName() + "." + constField.getName());
+            } else {
+                throw new IllegalStateException("unhandled value type " + value);
             }
-            enumClass.addEnumConstant(identifier).setConstructorArguments(intValue + "");
         }
 
         return enumClass;
     }
 
-    private BigInteger resolve(XdrValue value) {
-        if (value instanceof XdrConstantValue) {
-            return ((XdrConstantValue) value).getValue();
+    private XdrConstant resolveConstant(String constName, Scope scope) {
+        Identifiable resolvedTo = null;
+        Scope s = scope;
+        while (s != null) {
+            if ((resolvedTo = s.resolve(constName)) != null) {
+                break;
+            }
+            s = s.getParent();
         }
-        if (value instanceof XdrRefValue) {
-            throw new UnsupportedOperationException("resolving ref values not supported yet");
+        if (resolvedTo == null) {
+            throw new IllegalArgumentException("unable to resolve " + constName + " starting with scope " + scope);
         }
-        throw new IllegalStateException("unhandled value type " + value);
+        if (!(resolvedTo instanceof XdrConstant)) {
+            throw new IllegalStateException(constName + " expected to be a constant, instead was " + resolvedTo);
+        }
+        return (XdrConstant) resolvedTo;
     }
 
     private Map<Path, String> render(List<JavaType> generatedTypes) {

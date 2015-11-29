@@ -211,9 +211,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.mdkt.compiler</groupId>
-                <artifactId>InMemoryJavaCompiler</artifactId>
-                <version>1.2</version>
+                <groupId>com.github.radai-rosenblatt</groupId>
+                <artifactId>compilib</artifactId>
+                <version>1.0</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -249,8 +249,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mdkt.compiler</groupId>
-            <artifactId>InMemoryJavaCompiler</artifactId>
+            <groupId>com.github.radai-rosenblatt</groupId>
+            <artifactId>compilib</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -263,6 +263,10 @@
         <repository>
             <id>dcache-snapshots</id>
             <url>http://download.dcache.org/nexus/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 </project>
