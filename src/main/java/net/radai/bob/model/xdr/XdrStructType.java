@@ -43,6 +43,10 @@ public class XdrStructType extends XdrType implements Scope {
         fields.add(field);
     }
 
+    public List<XdrDeclaration> getFields() {
+        return fields;
+    }
+
     @Override
     public Identifiable resolve(String identifier) {
         for (XdrDeclaration field : fields) {

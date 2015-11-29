@@ -7,10 +7,9 @@ import net.radai.bob.model.xdr.*;
 import net.radai.bob.runtime.model.XdrEnum;
 import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.JavaType;
-import org.jboss.forge.roaster.model.source.FieldSource;
-import org.jboss.forge.roaster.model.source.JavaEnumSource;
-import org.jboss.forge.roaster.model.source.JavaInterfaceSource;
+import org.jboss.forge.roaster.model.source.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +22,7 @@ public class OncRpcGen {
     private Namespace namespace;
     private List<JavaType> generatedTypes = new ArrayList<>();
     private IdentityHashMap<XdrConstant, FieldSource> resolvedConstants = new IdentityHashMap<>();
+    private IdentityHashMap<XdrDeclaration, JavaType> resolvedTypes = new IdentityHashMap<>();
     private JavaInterfaceSource constsClass;
 
     /**
@@ -87,6 +87,9 @@ public class OncRpcGen {
                 case ENUM:
                     results.add(generateEnumClass(declaration, scope));
                     break;
+                case STRUCT:
+                    results.add(generateStructClass(declaration, scope));
+                    break;
                 default:
                     throw new UnsupportedOperationException("unsupported declaration of type " + type.getType() + ": " + type);
             }
@@ -137,7 +140,72 @@ public class OncRpcGen {
             }
         }
 
+        resolvedTypes.put(declaration, enumClass);
         return enumClass;
+    }
+
+    private JavaClassSource generateStructClass(XdrDeclaration declaration, Scope scope) {
+        XdrStructType structType = (XdrStructType) declaration.getType();
+
+        JavaClassSource structClass = Roaster.create(JavaClassSource.class);
+        structClass.setName(declaration.getIdentifier());
+
+        for (XdrDeclaration fieldDec : structType.getFields()) {
+            XdrType xdrType = fieldDec.getType();
+            if (xdrType instanceof XdrBasicType) {
+                Class<?> propertyType = translateBasicType((XdrBasicType) xdrType, fieldDec.isOptional(), fieldDec.isArray());
+                PropertySource<JavaClassSource> property = structClass.addProperty(propertyType, fieldDec.getIdentifier());
+                property.setMutable(true); //getters and setters
+                //TODO - if type is non-primitive and non-optional add some sort of @NotNull
+                continue;
+            }
+            throw new IllegalStateException("unhandled field type " + xdrType);
+        }
+        resolvedTypes.put(declaration, structClass);
+        return structClass;
+    }
+
+    private Class<?> translateBasicType(XdrBasicType type, boolean optional, boolean array) {
+        //TODO - configurable support for Collections vs Arrays
+        //TODO - configurable support for Primitives vs Wrappers
+        switch (type.getType()) {
+            case UNSIGNED_INT:
+            case INT:
+                if (array) {
+                    return int[].class;
+                }
+                return optional ? Integer.class : int.class;
+            case UNSIGNED_HYPER:
+            case HYPER:
+                if (array) {
+                    return long[].class;
+                }
+                return optional ? Long.class : long.class;
+            case FLOAT:
+                if (array) {
+                    return float[].class;
+                }
+                return optional ? Float.class : float.class;
+            case DOUBLE:
+                if (array) {
+                    return double[].class;
+                }
+                return optional ? Double.class : double.class;
+            case QUADRUPLE:
+                return array ? BigDecimal[].class : BigDecimal.class;
+            case BOOL:
+                if (array) {
+                    return boolean[].class;
+                }
+                return optional ? Boolean.class : boolean.class;
+            case OPAQUE:
+                assert array;
+                return byte[].class;
+            case STRING:
+                return array ? String[].class : String.class;
+            default:
+                throw new IllegalStateException("unhandled xdr basic type " + type.getType());
+        }
     }
 
     private XdrConstant resolveConstant(String constName, Scope scope) {

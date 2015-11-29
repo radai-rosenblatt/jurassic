@@ -94,8 +94,8 @@ public class OncRpcGenTest {
         String[] variations = new String[] {
                 "const C = 1;\n" +
                 "enum Bob {\n" +
-                        "    ALT1 = C\n" +
-                        "};",
+                "    ALT1 = C\n" +
+                "};",
                 "enum Bob {\n" +
                 "    ALT1 = C\n" +
                 "};\n" +
@@ -122,6 +122,41 @@ public class OncRpcGenTest {
             Assert.assertTrue(enumClass.isEnum());
             Assert.assertTrue(constClass.isInterface());
             Assert.assertEquals(1, ReflectionTestUtils.invokeGetterMethod(enumClass.getDeclaredField("ALT1").get(null), "value"));
+        }
+    }
+
+    @Test
+    public void testSimpleStruct() throws Exception {
+        String[] variations = new String[] {
+                "struct Bob {\n" +
+                "    unsigned int f1;\n" +
+                "    hyper f2;\n" +
+                "};\n"
+                ,
+                "typedef struct {\n" +
+                "    unsigned int f1;\n" +
+                "    hyper f2;\n" +
+                "} Bob;\n"
+        };
+        for (String xdr : variations) {
+            Namespace namespace = Util.parse(xdr);
+            Map<String, XdrDeclaration> types = namespace.getTypes();
+            Assert.assertEquals(1, types.size());
+            Assert.assertTrue(types.containsKey("Bob"));
+
+            Map<Path, String> result = gen.generate(namespace);
+            Assert.assertEquals(1, result.size());
+            String classSourse = result.get(Paths.get("Bob"));
+            Assert.assertFalse(classSourse.isEmpty());
+
+            Class<?> compiled = Compilib.compile(classSourse);
+            Assert.assertNotNull(compiled.getDeclaredField("f1"));
+            Assert.assertEquals(int.class, compiled.getDeclaredField("f1").getType());
+            Assert.assertNotNull(compiled.getDeclaredField("f2"));
+            Assert.assertEquals(long.class, compiled.getDeclaredField("f2").getType());
+
+            //assert order of declaration is maintained
+            Assert.assertTrue(classSourse.indexOf("f1") < classSourse.indexOf("f2"));
         }
     }
 }
