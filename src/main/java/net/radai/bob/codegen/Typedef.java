@@ -15,23 +15,10 @@
  * along with Bob. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.radai.bob.parser;
-
-import net.radai.bob.util.Util;
-import org.junit.Test;
-
-import java.io.InputStream;
+package net.radai.bob.codegen;
 
 /**
  * Created by Radai Rosenblatt
  */
-public class Nfsv3ParsingTest {
-
-    @Test
-    public void testParsingNfsv3() throws Exception {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("nfs3.x")) {
-            Util.parse(is);
-        }
-        //if we got here it means the parse didnt explode
-    }
+public abstract class Typedef {
 }

@@ -1,3 +1,20 @@
+/*
+ * This file is part of Bob.
+ *
+ * Bob is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Bob is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License
+ * along with Bob. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.radai.bob.codegen;
 
 import net.radai.bob.model.Namespace;
@@ -146,17 +163,33 @@ public class OncRpcGenTest {
 
             Map<Path, String> result = gen.generate(namespace);
             Assert.assertEquals(1, result.size());
-            String classSourse = result.get(Paths.get("Bob"));
-            Assert.assertFalse(classSourse.isEmpty());
+            String classSource = result.get(Paths.get("Bob"));
+            Assert.assertFalse(classSource.isEmpty());
 
-            Class<?> compiled = Compilib.compile(classSourse);
+            Class<?> compiled = Compilib.compile(classSource);
             Assert.assertNotNull(compiled.getDeclaredField("f1"));
             Assert.assertEquals(int.class, compiled.getDeclaredField("f1").getType());
             Assert.assertNotNull(compiled.getDeclaredField("f2"));
             Assert.assertEquals(long.class, compiled.getDeclaredField("f2").getType());
 
             //assert order of declaration is maintained
-            Assert.assertTrue(classSourse.indexOf("f1") < classSourse.indexOf("f2"));
+            Assert.assertTrue(classSource.indexOf("f1") < classSource.indexOf("f2"));
         }
+    }
+
+    @Test
+    public void testStructWithTypedef() throws Exception {
+        String xdr =
+                "typedef unsigned int uint32;\n" +
+                "struct Bob {\n" +
+                "    uint32 f;\n" +
+                "};\n";
+        Namespace namespace = Util.parse(xdr);
+        Map<Path, String> result = gen.generate(namespace);
+        Assert.assertEquals(1, result.size());
+        String classSource = result.get(Paths.get("Bob"));
+        Class<?> compiled = Compilib.compile(classSource);
+        Assert.assertNotNull(compiled.getDeclaredField("f"));
+        Assert.assertEquals(int.class, compiled.getDeclaredField("f").getType());
     }
 }

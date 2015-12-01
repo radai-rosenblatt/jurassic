@@ -21,8 +21,7 @@ import net.radai.bob.model.rpc.RpcProgram;
 import net.radai.bob.model.xdr.XdrConstant;
 import net.radai.bob.model.xdr.XdrDeclaration;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * not thread safe
@@ -30,9 +29,10 @@ import java.util.Map;
  */
 public class Namespace implements Scope {
     private final String name;
-    private final Map<String, XdrConstant> constants = new HashMap<>();
-    private final Map<String, XdrDeclaration> types = new HashMap<>();
-    private final Map<String, RpcProgram> programs = new HashMap<>();
+    //preserve order of declarations
+    private final LinkedHashMap<String, XdrConstant> constants = new LinkedHashMap<>();
+    private final LinkedHashMap<String, XdrDeclaration> types = new LinkedHashMap<>();
+    private final LinkedHashMap<String, RpcProgram> programs = new LinkedHashMap<>();
 
     public Namespace(String name) {
         if (name == null || name.trim().isEmpty()) {
@@ -60,15 +60,15 @@ public class Namespace implements Scope {
         programs.put(program.getName(), program);
     }
 
-    public Map<String, XdrConstant> getConstants() {
+    public LinkedHashMap<String, XdrConstant> getConstants() {
         return constants;
     }
 
-    public Map<String, XdrDeclaration> getTypes() {
+    public LinkedHashMap<String, XdrDeclaration> getTypes() {
         return types;
     }
 
-    public Map<String, RpcProgram> getPrograms() {
+    public LinkedHashMap<String, RpcProgram> getPrograms() {
         return programs;
     }
 

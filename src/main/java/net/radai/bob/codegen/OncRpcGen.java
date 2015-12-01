@@ -1,3 +1,20 @@
+/*
+ * This file is part of Bob.
+ *
+ * Bob is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Bob is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License
+ * along with Bob. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.radai.bob.codegen;
 
 import net.radai.bob.model.Identifiable;
@@ -23,6 +40,7 @@ public class OncRpcGen {
     private List<JavaType> generatedTypes = new ArrayList<>();
     private IdentityHashMap<XdrConstant, FieldSource> resolvedConstants = new IdentityHashMap<>();
     private IdentityHashMap<XdrDeclaration, JavaType> resolvedTypes = new IdentityHashMap<>();
+    private IdentityHashMap<XdrDeclaration, Typedef> resolvedTypedefs = new IdentityHashMap<>();
     private JavaInterfaceSource constsClass;
 
     /**
@@ -32,13 +50,13 @@ public class OncRpcGen {
 
         reset(namespace);
 
-        Map<String, XdrConstant> constants = namespace.getConstants();
+        LinkedHashMap<String, XdrConstant> constants = namespace.getConstants();
         if (constants != null && !constants.isEmpty()) {
             constsClass = generateConstantsClass(constants, namespace.getName() + "Consts");
             generatedTypes.add(constsClass);
         }
 
-        Map<String, XdrDeclaration> types = namespace.getTypes();
+        LinkedHashMap<String, XdrDeclaration> types = namespace.getTypes();
         if (types != null && !types.isEmpty()) {
             generatedTypes.addAll(generateTypeClasses(types, namespace));
         }
@@ -83,6 +101,29 @@ public class OncRpcGen {
         for (Map.Entry<String, XdrDeclaration> typeEntry : types.entrySet()) {
             XdrDeclaration declaration = typeEntry.getValue();
             XdrType type = declaration.getType();
+            if (type instanceof XdrBasicType) {
+                //this is a simple typedef, we dont generate intermediate classes for these
+                String identifier = declaration.getIdentifier();
+
+                boolean isArray = declaration.isArray();
+                boolean fixedSizeArray = isArray && declaration.isFixedSize();
+                int sizeLimit = 0;
+                if (isArray) {
+                    XdrValue sizeLimitValue = declaration.getSizeLimit();
+                    if (sizeLimitValue != null) {
+                        if (sizeLimitValue instanceof XdrConstantValue) {
+                            sizeLimit = ((XdrConstantValue)sizeLimitValue).getIntValue();
+                        } else if (sizeLimitValue instanceof XdrRefValue) {
+                            String limitIdentifier = ((XdrRefValue)sizeLimitValue).getRefName();
+                            throw new UnsupportedOperationException();
+                        }
+                    }
+                }
+                Class<?> javaType = translateBasicType((XdrBasicType) type, declaration.isOptional(), isArray);
+                SimpleTypedef typedef = new SimpleTypedef(identifier, javaType, fixedSizeArray, sizeLimit);
+                resolvedTypedefs.put(declaration, typedef);
+                continue;
+            }
             switch (type.getType()) {
                 case ENUM:
                     results.add(generateEnumClass(declaration, scope));
@@ -158,6 +199,24 @@ public class OncRpcGen {
                 property.setMutable(true); //getters and setters
                 //TODO - if type is non-primitive and non-optional add some sort of @NotNull
                 continue;
+            }
+            if (xdrType instanceof XdrRefType) {
+                String identifier = ((XdrRefType)xdrType).getRefName();
+                Identifiable resolvedTo = scope.resolve(identifier);
+                assert resolvedTo instanceof XdrDeclaration; //TODO - can this be an xdr const?
+                XdrDeclaration resolvedDeclaration = (XdrDeclaration) resolvedTo;
+                if (resolvedTypedefs.containsKey(resolvedDeclaration)) {
+                    //its a typedef
+                    Typedef typedef = resolvedTypedefs.get(resolvedDeclaration);
+                    if (typedef instanceof SimpleTypedef) {
+                        SimpleTypedef sdf = (SimpleTypedef) typedef;
+                        Class<?> propertyType = sdf.getSimpleType();
+                        PropertySource<JavaClassSource> property = structClass.addProperty(propertyType, fieldDec.getIdentifier());
+                        property.setMutable(true); //getters and setters
+                        continue;
+                    }
+                }
+                throw new UnsupportedOperationException();
             }
             throw new IllegalStateException("unhandled field type " + xdrType);
         }
