@@ -19,47 +19,48 @@ package net.radai.bob.model.xdr;
 
 import net.radai.bob.model.Identifiable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Radai Rosenblatt
  */
 public class XdrDeclaration implements Identifiable {
-    private boolean optional;
-    private boolean array;
-    private boolean fixedSize;
-    private XdrValue sizeLimit;
+    private List<DimensionConstraints> constraints = Collections.singletonList(new DimensionConstraints());
     private String identifier;
     private XdrType type;
 
     public boolean isOptional() {
-        return optional;
+        return constraints.get(0).optional;
     }
 
     public void setOptional(boolean optional) {
-        this.optional = optional;
+        constraints.get(0).optional = optional;
     }
 
     public boolean isArray() {
-        return array;
+        return constraints.get(0).array;
     }
 
     public void setArray(boolean array) {
-        this.array = array;
+        constraints.get(0).array = array;
     }
 
     public boolean isFixedSize() {
-        return fixedSize;
+        return constraints.get(0).fixedSize;
     }
 
     public void setFixedSize(boolean fixedSize) {
-        this.fixedSize = fixedSize;
+        constraints.get(0).fixedSize = fixedSize;
     }
 
     public XdrValue getSizeLimit() {
-        return sizeLimit;
+        return constraints.get(0).sizeLimit;
     }
 
     public void setSizeLimit(XdrValue sizeLimit) {
-        this.sizeLimit = sizeLimit;
+        constraints.get(0).sizeLimit = sizeLimit;
     }
 
     @Override
@@ -79,6 +80,27 @@ public class XdrDeclaration implements Identifiable {
         this.type = type;
     }
 
+    public int getDimensionality() {
+        return constraints.size();
+    }
+
+    public XdrDeclaration getEffectiveDeclaration() {
+        XdrDeclaration result = this;
+        while (true) {
+            XdrType resultType = result.getType();
+            if (!(resultType instanceof XdrRefType)) {
+                return result; //we hit a concrete type
+            }
+            XdrRefType refType = (XdrRefType) resultType;
+            Identifiable resolved = refType.resolve();
+            if (resolved == null) {
+                throw new IllegalStateException("unable to resolve " + refType);
+            }
+            XdrDeclaration resolvedTo = (XdrDeclaration) resolved;
+            result = result.combineWith(resolvedTo);
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -86,17 +108,58 @@ public class XdrDeclaration implements Identifiable {
             sb.append(identifier).append(": ");
         }
         sb.append(type.toString());
-        if (array) {
-            if (fixedSize) {
-                sb.append("[").append(sizeLimit).append("]");
-            } else {
-                sb.append("<");
-                if (sizeLimit != null) {
-                    sb.append(sizeLimit);
-                }
-                sb.append(">");
-            }
+        for (int i=constraints.size()-1; i>=0; i--) {
+            sb.append(constraints.get(i));
         }
         return sb.toString();
+    }
+
+    private XdrDeclaration combineWith(XdrDeclaration innerDecl) {
+        XdrDeclaration result = new XdrDeclaration();
+        result.identifier = this.identifier;
+        result.type = innerDecl.type;
+        result.constraints = new ArrayList<>(this.constraints);
+        result.constraints.addAll(innerDecl.constraints);
+        return result;
+    }
+
+    public static class DimensionConstraints {
+        private boolean optional;
+        private boolean array;
+        private boolean fixedSize;
+        private XdrValue sizeLimit;
+
+        private void validate() throws IllegalArgumentException {
+            if (optional) {
+                if (array || fixedSize || sizeLimit != null) {
+                    throw new IllegalArgumentException("an optional def cannot be combined with any array def");
+                }
+            } else if (array) {
+                if (fixedSize) {
+                    if (sizeLimit == null) {
+                        throw new IllegalArgumentException("fixed size array must have a limit specified");
+                    }
+                }
+            } else {
+                if (fixedSize || sizeLimit!=null) {
+                    throw new IllegalArgumentException("not an array yet size limits specified");
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            if (optional) {
+                return "*";
+            }
+            if (array) {
+                if (fixedSize) {
+                    return "[" + sizeLimit + "]"; //has to be a limit
+                } else {
+                    return "<" + (sizeLimit == null ? "" : sizeLimit) + ">";
+                }
+            }
+            return "";
+        }
     }
 }

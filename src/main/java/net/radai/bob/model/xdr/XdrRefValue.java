@@ -17,24 +17,28 @@
 
 package net.radai.bob.model.xdr;
 
+import net.radai.bob.model.Scope;
+
 import java.util.Objects;
 
 /**
  * @author Radai Rosenblatt
  */
 public class XdrRefValue extends XdrValue {
-    private String refName;
+    private final String refName;
+    private final Scope scope;
 
-    public XdrRefValue(String refName) {
+    public XdrRefValue(String refName, Scope scope) {
         this.refName = refName;
+        this.scope = scope;
     }
 
     public String getRefName() {
         return refName;
     }
 
-    public void setRefName(String refName) {
-        this.refName = refName;
+    public void resolve() {
+        scope.resolveRecursive(refName);
     }
 
     @Override

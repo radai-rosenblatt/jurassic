@@ -112,7 +112,7 @@ public class OncRpcParser {
             declaration.setIdentifier(ctx.IDENTIFIER().getText());
             switch (firstWord) {
                 case "enum":
-                    declaration.setType(parseEnumType(ctx.enumBody()));
+                    declaration.setType(parseEnumType(ctx.enumBody(), scope));
                     break;
                 case "struct":
                     declaration.setType(parseStructType(ctx.structBody(), scope));
@@ -174,23 +174,23 @@ public class OncRpcParser {
             declaration.setIdentifier(ctx.IDENTIFIER().getText());
         }
         if (ctx.value() != null) {
-            declaration.setSizeLimit(parseValue(ctx.value()));
+            declaration.setSizeLimit(parseValue(ctx.value(), parentScope));
         }
         return declaration;
     }
 
-    private XdrValue parseValue(oncrpcv2Parser.ValueContext ctx) {
+    private XdrValue parseValue(oncrpcv2Parser.ValueContext ctx, Scope parentScope) {
         if (ctx.constant() != null) {
             BigInteger sizeLimit = parseInteger(AntlrUtil.resolveToTerminal(ctx.constant()).getSymbol());
             return new XdrConstantValue(sizeLimit);
         } else {
-            return new XdrRefValue(ctx.IDENTIFIER().getText());
+            return new XdrRefValue(ctx.IDENTIFIER().getText(), parentScope);
         }
     }
 
     private XdrType parseType(oncrpcv2Parser.TypeSpecifierContext ctx, Scope parentScope) {
         if (ctx.enumTypeSpec() != null) {
-            return parseEnumType(ctx.enumTypeSpec().enumBody());
+            return parseEnumType(ctx.enumTypeSpec().enumBody(), parentScope);
         }
         if (ctx.structTypeSpec() != null) {
             return parseStructType(ctx.structTypeSpec().structBody(), parentScope);
@@ -199,7 +199,7 @@ public class OncRpcParser {
             return parseUnionType(ctx.unionTypeSpec().unionBody(), parentScope);
         }
         if (ctx.IDENTIFIER() != null) {
-            return new XdrRefType(ctx.IDENTIFIER().getText());
+            return new XdrRefType(ctx.IDENTIFIER().getText(), parentScope);
         }
         String firstChild = ctx.getChild(0).getText();
         switch (firstChild) {
@@ -229,12 +229,12 @@ public class OncRpcParser {
         }
     }
 
-    private XdrEnumType parseEnumType(oncrpcv2Parser.EnumBodyContext ctx) {
+    private XdrEnumType parseEnumType(oncrpcv2Parser.EnumBodyContext ctx, Scope parentScope) {
         XdrEnumType result = new XdrEnumType();
         List<TerminalNode> identifiers = ctx.IDENTIFIER();
         List<oncrpcv2Parser.ValueContext> values = ctx.value();
         for (int i = 0; i < identifiers.size(); i++) {
-            result.add(identifiers.get(i).getText(), parseValue(values.get(i)));
+            result.add(identifiers.get(i).getText(), parseValue(values.get(i), parentScope));
         }
         return result;
     }
@@ -259,7 +259,7 @@ public class OncRpcParser {
         for (oncrpcv2Parser.CaseSpecContext arm : ctx.caseSpec()) {
             HashSet<XdrValue> caseValues = new HashSet<>();
             for (oncrpcv2Parser.ValueContext value : arm.value()) {
-                caseValues.add(parseValue(value));
+                caseValues.add(parseValue(value, result));
             }
             result.add(caseValues, parseDeclaration(arm.declaration(), result));
         }

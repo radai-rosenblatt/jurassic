@@ -23,4 +23,15 @@ package net.radai.bob.model;
 public interface Scope {
     Identifiable resolve(String identifier);
     Scope getParent(); //null if top level
+    default Identifiable resolveRecursive(String identifier) {
+        Identifiable result = resolve(identifier);
+        if (result != null) {
+            return result;
+        }
+        Scope parent = getParent();
+        if (parent == null) {
+            return null;
+        }
+        return parent.resolveRecursive(identifier);
+    }
 }

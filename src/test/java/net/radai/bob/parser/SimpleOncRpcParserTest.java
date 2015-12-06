@@ -18,7 +18,10 @@
 package net.radai.bob.parser;
 
 import net.radai.bob.model.Namespace;
+import net.radai.bob.model.xdr.XdrBasicType;
 import net.radai.bob.model.xdr.XdrConstant;
+import net.radai.bob.model.xdr.XdrDeclaration;
+import net.radai.bob.model.xdr.XdrStructType;
 import net.radai.bob.util.Util;
 import org.junit.Assert;
 import org.junit.Test;
@@ -52,5 +55,28 @@ public class SimpleOncRpcParserTest {
     @Test
     public void testUglyEnumDef() throws Exception {
         Namespace results = Util.parse("typedef enum { FALSE = 0, TRUE = 1 } bob;");
+    }
+
+    @Test
+    public void testEffectiveDeclarationResolution() throws Exception {
+        String xdr =
+                "const A = 10;\n" +
+                "const B = 20;\n" +
+                "typedef int *iint;\n" +
+                "typedef iint iintArr<A>;\n" +
+                "struct Bob {\n" +
+                "    iintArr a[B];\n" +
+                "    int b;\n" +
+                "};";
+        Namespace namespace = Util.parse(xdr);
+        XdrDeclaration bobDecl = (XdrDeclaration) namespace.resolve("Bob");
+        XdrStructType bobType = (XdrStructType) bobDecl.getType();
+        XdrDeclaration bDecl = bobType.getField("b");
+        Assert.assertTrue(bDecl.getEffectiveDeclaration() == bDecl); //no references involved
+        XdrDeclaration aDecl = bobType.getField("a");
+        //the field is Integer<10>[20]
+        XdrDeclaration effectiveADecl = aDecl.getEffectiveDeclaration();
+        Assert.assertEquals(3, effectiveADecl.getDimensionality());
+        Assert.assertEquals(effectiveADecl.getType(), XdrBasicType.INT);
     }
 }

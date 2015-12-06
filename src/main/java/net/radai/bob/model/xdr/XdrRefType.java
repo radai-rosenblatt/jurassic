@@ -17,15 +17,20 @@
 
 package net.radai.bob.model.xdr;
 
+import net.radai.bob.model.Identifiable;
+import net.radai.bob.model.Scope;
+
 /**
  * @author Radai Rosenblatt
  */
 public class XdrRefType extends XdrType {
 
     private final String refName;
+    private final Scope scope;
 
-    public XdrRefType(String refName) {
+    public XdrRefType(String refName, Scope scope) {
         this.refName = refName;
+        this.scope = scope;
     }
 
     @Override
@@ -35,6 +40,10 @@ public class XdrRefType extends XdrType {
 
     public String getRefName() {
         return refName;
+    }
+
+    public Identifiable resolve() {
+        return scope.resolveRecursive(refName);
     }
 
     @Override

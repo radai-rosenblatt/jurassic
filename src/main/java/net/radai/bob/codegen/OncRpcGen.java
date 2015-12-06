@@ -72,12 +72,9 @@ public class OncRpcGen {
     }
 
     private JavaInterfaceSource generateConstantsClass(Map<String, XdrConstant> constants, String fqcn) {
-        List<Map.Entry<String, XdrConstant>> sortedConstants = new ArrayList<>(constants.entrySet());
-        Collections.sort(sortedConstants, (e1, e2) -> e1.getKey().compareTo(e2.getKey())); //by name
-
         JavaInterfaceSource constsClass = Roaster.create(JavaInterfaceSource.class);
         constsClass.setName(fqcn);
-        for (Map.Entry<String, XdrConstant> constantEntry : sortedConstants) {
+        for (Map.Entry<String, XdrConstant> constantEntry : constants.entrySet()) {
             String constantName = constantEntry.getKey();
             XdrConstant constant = constantEntry.getValue();
             FieldSource<JavaInterfaceSource> field = constsClass.addField().setName(constantName);
@@ -131,6 +128,8 @@ public class OncRpcGen {
                 case STRUCT:
                     results.add(generateStructClass(declaration, scope));
                     break;
+                case UNION:
+
                 default:
                     throw new UnsupportedOperationException("unsupported declaration of type " + type.getType() + ": " + type);
             }
@@ -165,7 +164,8 @@ public class OncRpcGen {
                 }
                 enumClass.addEnumConstant(identifier).setConstructorArguments(intValue + "");
             } else if (value instanceof XdrRefValue) {
-                String refName = ((XdrRefValue) value).getRefName();
+                XdrRefValue refValue = (XdrRefValue) value;
+                String refName = refValue.getRefName();
                 XdrConstant resolvedTo = resolveConstant(refName, scope);
                 FieldSource constField = resolvedConstants.get(resolvedTo);
                 if (constField == null) {
