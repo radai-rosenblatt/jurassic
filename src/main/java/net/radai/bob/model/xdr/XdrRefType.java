@@ -42,6 +42,10 @@ public class XdrRefType extends XdrType {
         return refName;
     }
 
+    public Scope getScope() {
+        return scope;
+    }
+
     public Identifiable resolve() {
         return scope.resolveRecursive(refName);
     }

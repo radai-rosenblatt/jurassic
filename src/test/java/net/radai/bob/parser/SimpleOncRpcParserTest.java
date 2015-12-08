@@ -18,10 +18,7 @@
 package net.radai.bob.parser;
 
 import net.radai.bob.model.Namespace;
-import net.radai.bob.model.xdr.XdrBasicType;
-import net.radai.bob.model.xdr.XdrConstant;
-import net.radai.bob.model.xdr.XdrDeclaration;
-import net.radai.bob.model.xdr.XdrStructType;
+import net.radai.bob.model.xdr.*;
 import net.radai.bob.util.Util;
 import org.junit.Assert;
 import org.junit.Test;
@@ -78,5 +75,22 @@ public class SimpleOncRpcParserTest {
         XdrDeclaration effectiveADecl = aDecl.getEffectiveDeclaration();
         Assert.assertEquals(3, effectiveADecl.getDimensionality());
         Assert.assertEquals(effectiveADecl.getType(), XdrBasicType.INT);
+    }
+
+    @Test
+    public void testLinkedListDeclaration() throws Exception {
+        String xdr =
+                "struct Link {\n" +
+                "    Link *next;\n" +
+                "    int payload;\n" +
+                "};";
+        Namespace namespace = Util.parse(xdr);
+        XdrDeclaration linkDecl = (XdrDeclaration) namespace.resolve("Link");
+        XdrStructType linkType = (XdrStructType) linkDecl.getType();
+        XdrDeclaration nextDecl = linkType.getField("next");
+        XdrRefType refType = (XdrRefType) nextDecl.getType();
+        Assert.assertEquals(refType.getScope(), linkType); //type resolution starts at the struct level
+        XdrDeclaration effectiveDeclaration = nextDecl.getEffectiveDeclaration();
+        Assert.assertEquals(2, effectiveDeclaration.getDimensionality());
     }
 }
