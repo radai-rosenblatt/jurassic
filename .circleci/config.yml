@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - dependency-cache-{{ checksum "pom.xml" }}
+      - run:
+          command: mvn clean install
+      - save_cache:
+          key: dependency-cache-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2
+       - run:
+           command: mkdir ~/test-results
+       - run:
+           command: find ~/repo -type f -regex ".*/surefire-reports/.*xml" -exec ln {} ~/test-results/ \;
+       - store_test_results:
+           path: ~/test-results
+       - store_artifacts:
+           path: ~/test-results
