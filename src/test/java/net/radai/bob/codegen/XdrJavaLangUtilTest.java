@@ -5,7 +5,6 @@ import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.PropertySource;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -31,7 +30,6 @@ public class XdrJavaLangUtilTest {
     }
 
     @Test
-    @Ignore("https://issues.jboss.org/browse/ROASTER-88")
     public void testGeneratedTypes() throws Exception {
         JavaClassSource structClass = Roaster.create(JavaClassSource.class);
         structClass.setName("Bob");
