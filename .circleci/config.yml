@@ -1,4 +1,5 @@
 version: 2
+
 jobs:
 
   build:
@@ -25,3 +26,36 @@ jobs:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results
+
+  release:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/openjdk:8-jdk
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - restore_cache:
+          key: dep-cache-{{ checksum "pom.xml" }}
+      - run:
+          command: mvn package
+      - run:
+          command: ./.circleci/publish.sh
+
+workflows:
+  version: 2
+  
+  build-and-release:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^[0-9]+\.[0-9]+\.[0-9]+$/
+            branches:
+              ignore: /.*/
